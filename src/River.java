@@ -1,22 +1,15 @@
-public class River implements Location {
-    private String name;
-    private int distance;
+public class River extends Landmark implements Location {
 
-    public River(String name, int distance) {
-        this.name = name;
-        this.distance = distance;
+    public River(String name, String description, int distanceFromPrevious) {
+        super(name, description, distanceFromPrevious);
     }
 
     @Override
     public void interact() {
-        System.out.println("You must cross the " + name + " river.");
+        System.out.println("You must cross the " + getName() + " river.");
     }
 
     @Override
     public void showDetails() {
-    }
-
-    public int getDistance() {
-        return distance;
     }
 }

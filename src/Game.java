@@ -4,16 +4,24 @@ import java.lang.*;
 public class Game {
     private Player player;
     private ArrayList<Companion> companions;
-    private ArrayList<Location> locations;
+    private ArrayList<Landmark> locations;
     private ArrayList<Oxen> oxen;
     private Location currentLocation;
     private boolean gameRunning;
+    private int rations;
+    private int pace;
+    private int milesTraveled;
+    private int daysTraveled;
 
     public Game() {
         this.companions = new ArrayList<>();
         this.locations = new ArrayList<>();
         this.oxen = new ArrayList<>();
         this.gameRunning = true;
+        this.rations = 3;
+        this.pace = 1;
+        this.milesTraveled = 0;
+        this.daysTraveled = 0;
 
         init();
 
@@ -39,7 +47,6 @@ public class Game {
 
     public void start() {
         int choice;
-        int milesTraveled = 0;
         while (gameRunning) {
             showMainMenu();
             choice = TextIO.getInt();
@@ -80,12 +87,29 @@ public class Game {
     }
 
     public void checkSupplies() {
+        player.inventoryToString();
+        TextIO.getln();
+        Terminal.clean();
     }
 
     public void lookAtMap() {
     }
 
     public void changePace() {
+        Terminal.println("Change Pace");
+        Terminal.print("Currently '");
+        switch(pace){
+            case 1:
+                Terminal.print("steady");
+            case 2:
+                Terminal.print("strenuous");
+            case 3:
+                Terminal.print("grueling");
+            default:
+                Terminal.println("Uh oh! You've come across an error in the game that the stupid developer couldn't find. sorry.");
+            }
+        Terminal.println("'\nThe pace at which you travel can change. Your choices are:");
+        // Finish
     }
 
     public void changeFoodRations() {
@@ -153,8 +177,30 @@ public class Game {
     }
 
     private void initLocations() {
-        locations.add(new Fort("Independence", "A trading post and starting point.", 0));
+        locations.add(new Fort("Independence", "A trading post and starting point.", 0));  
+        locations.add(new Fort("Fort Kearny", "A fort on the plains, providing supplies and protection.", 200));
+        locations.add(new Landmark("Chimney Rock", "A distinctive rock formation in Nebraska, often used by travelers to navigate the plains.", 250));
+        locations.add(new Fort("Fort Laramie", "A military post that offers resupply and repairs.", 350));
+        locations.add(new Landmark("Independence Rock", "A massive rock formation that served as a major landmark and guide for westward travelers.", 400));
+        locations.add(new Landmark("South Pass", "A high pass through the Rocky Mountains that served as a major route for pioneers.", 450));
+        locations.add(new Fort("Fort Bridger", "A trading post and the final fort on the trail.", 550));
+        locations.add(new Landmark("Soda Springs", "A popular resting spot, famous for its naturally carbonated spring.", 700));
+        locations.add(new Fort("Fort Hall", "A fur trading post and rest stop in the Snake River region.", 800));
+        locations.add(new Fort("Fort Boise", "A fort established to protect travelers from Indian attacks and offer supplies.", 950));
+        locations.add(new Landmark("Blue Mountains", "A mountain range in Oregon, known for its treacherous terrain and challenging climbs.", 1100));
+        locations.add(new Landmark("The Dalles", "A series of rapids in the Columbia River, requiring travelers to portage their wagons.", 1200));
+        locations.add(new Fort("Fort Walla Walla", "A fort on the Columbia River, providing a break before reaching the Cascades.", 1250));
+        locations.add(new Landmark("Oregon City", "The final destination for travelers on the Oregon Trail, where many pioneers hoped to settle in the fertile Willamette Valley.", 1350));
+
+        locations.add(new River("Kansas River", "A dangerous river crossing in the Kansas Territory.", 100));
+        locations.add(new River("Platte River", "A major river that many pioneers use to guide their way west.", 150));
+        locations.add(new River("North Platte River", "A branch of the Platte River that travelers followed.", 250));
+        locations.add(new River("Sweetwater River", "A river that flows through the Rocky Mountains and was often crossed by wagon trains.", 350));
+        locations.add(new River("Green River", "A large river, sometimes difficult to ford, especially during high water.", 500));
+        locations.add(new River("Snake River", "A challenging river with rocky terrain and swift currents.", 750));
+        locations.add(new River("Columbia River", "A dangerous river at the end of the trail, with rapids that test even the most skilled navigators.", 1300));
     }
+
 
     private void buySupplies() {
         Terminal.println("You have $" + String.valueOf(player.getMoney()) + " to spend. You can get what you need at Matt's general store.");
@@ -201,9 +247,5 @@ public class Game {
         player.addItem(new Item("Tongues", parts[2]));
 
         Terminal.clean();
-
-        player.inventoryToString();
-
-        Terminal.sleep(100000);
     }
 }

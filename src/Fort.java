@@ -1,12 +1,6 @@
-public class Fort implements Location {
-    private String name;
-    private String description;
-    private int distanceFromPrevious;
-
+public class Fort extends Landmark implements Location {
     public Fort(String name, String description, int distanceFromPrevious) {
-        this.name = name;
-        this.description = description;
-        this.distanceFromPrevious = distanceFromPrevious;
+        super(name, description, distanceFromPrevious);
     }
 
     @Override
@@ -18,9 +12,5 @@ public class Fort implements Location {
     }
 
     public void buySupplies() {
-    }
-
-    public int getDistanceFromPrevious() {
-        return distanceFromPrevious;
     }
 }

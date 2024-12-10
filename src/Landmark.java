@@ -20,4 +20,12 @@ public class Landmark implements Location {
     public int getDistanceFromPrevious() {
         return distanceFromPrevious;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

@@ -1,9 +1,13 @@
 - Learning about locations
-- Create map
+- Create map # Update  Done! // Finish toString()
 - Day logic
+
+Framework complete! Dec 9
 
 To commit:
 
 git add .
-git commit -m "My changes"
+git commit -m "Use TextIO"
 git push origin master
+
+- Submitted Dec 9 to Canvas for Draft #1
