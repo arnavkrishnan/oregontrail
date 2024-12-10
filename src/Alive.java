@@ -1,10 +1,10 @@
-public abstract class Character {
+public abstract class Alive {
     private String name;
     private int health;
     private int morale;
     private int hygiene;
 
-    public Character(String name) {
+    public Alive(String name) {
         this.name = name;
         this.health = 100;
         this.morale = 100;

@@ -1,4 +1,4 @@
-public class Companion extends Character {
+public class Companion extends Alive {
     public Companion(String name) {
         super(name);
     }

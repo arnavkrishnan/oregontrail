@@ -1,4 +1,4 @@
-public class Player extends Character {
+public class Player extends Alive {
     private String profession;
     private double money;
     private Inventory inventory;

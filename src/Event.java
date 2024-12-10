@@ -46,7 +46,7 @@ public class Event {
         return "You find an abandoned wagon.";
     }
 
-    public static String getRandomEvent(List<Character> characters, String weather, int foodRations, int pace, String topography, int grassAmount, int waterAmount, String waterQuality) {
+    public static String getRandomEvent(List<Alive> characters, String weather, int foodRations, int pace, String topography, int grassAmount, int waterAmount, String waterQuality) {
         Random rand = new Random();
 
         if (grassAmount > 0 && waterAmount > 0 && rand.nextInt(100) < 20) {
@@ -73,19 +73,19 @@ public class Event {
             return oxenInjuredOrDead();
         }
 
-        for (Character c : characters) {
+        for (Alive c : characters) {
             if ((foodRations < 3 || waterQuality.equals("bad")) && rand.nextInt(100) < 20) {
                 return personHasDisease(c.getName());
             }
         }
 
-        for (Character c : characters) {
+        for (Alive c : characters) {
             if (rand.nextInt(100) < Math.min(20 + pace * 2, 60)) {
                 return personHasBroken(c.getName());
             }
         }
 
-        for (Character c : characters) {
+        for (Alive c : characters) {
             if (rand.nextInt(100) < 5 && c.getHealth() < 20) {
                 return personHasDied(c.getName());
             }

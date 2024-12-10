@@ -1,4 +1,4 @@
-public class Oxen extends Character {
+public class Oxen extends Alive {
     public Oxen() {
         super("An Oxen");
     }
