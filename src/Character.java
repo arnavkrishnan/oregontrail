@@ -1,0 +1,48 @@
+public abstract class Character {
+    private String name;
+    private int health;
+    private int morale;
+    private int hygiene;
+
+    public Character(String name) {
+        this.name = name;
+        this.health = 100;
+        this.morale = 100;
+        this.hygiene = 100;
+    }
+
+    public abstract void act();
+    public abstract void rest();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public int getMorale() {
+        return morale;
+    }
+
+    public void setMorale(int morale) {
+        this.morale = morale;
+    }
+
+    public int getHygiene() {
+        return hygiene;
+    }
+
+    public void setHygiene(int hygiene) {
+        this.hygiene = hygiene;
+    }
+}
