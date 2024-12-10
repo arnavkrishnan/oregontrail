@@ -38,12 +38,11 @@ public class Game {
     }
 
     public void start() {
-        Scanner scanner = new Scanner(System.in);
         int choice;
         int milesTraveled = 0;
         while (gameRunning) {
             showMainMenu();
-            choice = scanner.nextInt();
+            choice = TextIO.getInt();
             switch (choice) {
                 case 1:
                     continueOnTrail();
@@ -114,9 +113,8 @@ public class Game {
     }
 
     private void createPlayer() {
-        Scanner scanner = new Scanner(System.in);
         Terminal.print("Choose your profession: (1) Banker from Boston (2) Carpenter from Ohio (3) Farmer from Illinois: ");
-        int professionChoice = scanner.nextInt();
+        int professionChoice = TextIO.getInt();
         String profession = "";
         int startingMoney = 0;
 
@@ -136,25 +134,22 @@ public class Game {
         }
 
         Terminal.print("Enter your name: ");
-        scanner.nextLine();
-        String playerName = scanner.nextLine();
+        String playerName = TextIO.getlnString();
 
         this.player = new Player(playerName, startingMoney, profession);
     }
 
     private void createCompanions() {
-        Scanner scanner = new Scanner(System.in);
         for (int i = 0; i < 4; i++) {
             Terminal.print("Enter name for companion " + (i + 1) + ": ");
-            String name = scanner.nextLine();
+            String name = TextIO.getlnString();
             companions.add(new Companion(name));
         }
     }
 
     private void chooseDepartureMonth() {
-        Scanner scanner = new Scanner(System.in);
         Terminal.print("When would you like to leave? (1) March (2) April (3) May (4) June (5) July: ");
-        int monthChoice = scanner.nextInt();
+        int monthChoice = TextIO.getInt();
     }
 
     private void initLocations() {

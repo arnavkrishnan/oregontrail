@@ -1,3 +1,9 @@
 - Learning about locations
 - Create map
 - Day logic
+
+To commit:
+
+git add .
+git commit -m "My changes"
+git push origin master
