@@ -19,7 +19,7 @@ public class Game {
         this.locations = new ArrayList<>();
         this.oxen = new ArrayList<>();
         this.gameRunning = true;
-        this.rations = 3;
+        this.rations = 1;
         this.pace = 1;
         this.milesTraveled = 0;
         this.daysTraveled = 0;
@@ -92,7 +92,7 @@ public class Game {
 
     public void checkSupplies() {
         player.inventoryToString();
-        TextIO.getAnyChar();
+        TextIO.getln();
         Terminal.clean();
     }
 
@@ -141,22 +141,46 @@ public class Game {
 
     public void changePace() {
         Terminal.println("Change Pace");
-        Terminal.print("Currently '");
         switch(pace){
             case 1:
-                Terminal.print("steady");
+                Terminal.println("(Currently 'steady')");
+                break;
             case 2:
-                Terminal.print("strenuous");
+                Terminal.println("(Currently 'strenuous')");
+                break;
             case 3:
-                Terminal.print("grueling");
+                Terminal.println("(Currently 'grueling')");
+                break;
             default:
                 Terminal.println("Uh oh! You've come across an error in the game that the stupid developer couldn't find. sorry.");
+                break;
             }
-        Terminal.println("'\nThe pace at which you travel can change. Your choices are:");
-        // Finish
+        Terminal.println("The pace at which you travel can change. Your choices are:");
+        Terminal.println("1. Steady\n2. Strenuous\n3. Grueling");
+        Terminal.print("What is your choice? ");
+        this.pace = TextIO.getlnInt();
     }
 
     public void changeFoodRations() {
+        Terminal.println("Change food rations");
+        switch(pace){
+            case 1:
+                Terminal.println("(Currently 'filling')");
+                break;
+            case 2:
+                Terminal.println("(Currently 'meager')");
+                break;
+            case 3:
+                Terminal.println("(Currently 'bare bones')");
+                break;
+            default:
+                Terminal.println("Uh oh! You've come across an error in the game that the stupid developer couldn't find. sorry.");
+                break;
+            }
+        Terminal.println("The pace at which you travel can change. Your choices are:");
+        Terminal.println("1. filling - meals are large and generous.\n2. meager - meals are small, but adequate.\n3. bare bones - meals are very small; everyone stays hungry");
+        Terminal.print("What is your choice? ");
+        this.pace = TextIO.getlnInt();
     }
 
     public void stopToRest() {
@@ -248,15 +272,14 @@ public class Game {
 
     private void buySupplies() {
         Terminal.println("You have $" + String.valueOf(player.getMoney()) + "0 to spend. You can get what you need at Matt's general store.");
-        Terminal.sleep(2000);
-        Terminal.clean();
         Terminal.println("Hello, I'm Matt! So you're going to Oregon! I can fix you up with what you need:");
         Terminal.println("- a team of oxen to pull your wagon");
         Terminal.println("- clothing for both summer and winter");
         Terminal.println("- plenty of food for the trip");
         Terminal.println("- ammunition for your rifles");
         Terminal.println("- spare parts for your wagon");
-        Terminal.sleep(6000);
+
+        TextIO.getln();
         Terminal.clean();
 
         int yoke = MattsGeneralStore.buyOxen(player);
