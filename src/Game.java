@@ -6,7 +6,6 @@ public class Game {
     private ArrayList<Companion> companions;
     private ArrayList<Landmark> locations;
     private ArrayList<Oxen> oxen;
-    private int currentLocation;
     private boolean gameRunning;
     private int rations;
     private int pace;
@@ -49,9 +48,13 @@ public class Game {
     public void start() {
         int choice;
         while (gameRunning) {
+            Terminal.clean();
+            if (isCurrentLocation(locations, milesTraveled)){
+            }
             Terminal.println("Today's Date: " + Date.calculate(daysTraveled, month));
-            Terminal.println("Days Traveled: " + daysTraveled);
-            Terminal.println("Miles Traveled: " + milesTraveled);
+            Terminal.println("Weather: feature unavailable");
+            Terminal.println("Health: feature unavailable");
+            Terminal.println("Pace: " + this.pace);
             showMainMenu();
             choice = TextIO.getInt();
             switch (choice) {
@@ -77,8 +80,17 @@ public class Game {
                     attemptToTrade();
                     break;
                 case 8:
-                    talkToLocals();
+                    if (isCurrentLocation(locations, milesTraveled)){
+                        talkToLocals();
+                    } else {
+                        hunt();
+                    }
                     break;
+                case 9:
+                    if (isCurrentLocation(locations, milesTraveled)){
+                        atFort();
+                        break;
+                    }
                 default:
                     Terminal.print("Invalid choice, please try again.");
                     break;
@@ -91,6 +103,7 @@ public class Game {
     }
 
     public void checkSupplies() {
+        TextIO.getln();
         player.inventoryToString();
         TextIO.getln();
         Terminal.clean();
@@ -103,7 +116,7 @@ public class Game {
         StringBuilder pathLine = new StringBuilder();
         StringBuilder markerLine = new StringBuilder();
 
-        int currentIndex = currentLocation;
+        int currentIndex = milesTraveled;
 
         for (int i = 0; i < locations.size(); i++) {
             Location location = locations.get(i);
@@ -184,6 +197,8 @@ public class Game {
     }
 
     public void stopToRest() {
+        Terminal.println("How many days would you like to rest?");
+        this.daysTraveled += TextIO.getlnInt();
     }
 
     public void attemptToTrade() {
@@ -192,16 +207,33 @@ public class Game {
     public void talkToLocals() {
     }
 
-    private void showMainMenu() {
-        Terminal.println("1. Continue on Trail");
-        Terminal.println("2. Check supplies");
-        Terminal.println("3. Look at Map");
-        Terminal.println("4. Change Pace");
-        Terminal.println("5. Change food rations");
-        Terminal.println("6. Stop to Rest");
-        Terminal.println("7. Attempt to Trade");
-        Terminal.println("8. Talk to Locals");
+    public void hunt(){
+    }
 
+    public void atFort(){
+    }
+
+    private void showMainMenu() {
+        if(isCurrentLocation(locations, milesTraveled)){
+            Terminal.println("1. Continue on Trail");
+            Terminal.println("2. Check supplies");
+            Terminal.println("3. Look at Map");
+            Terminal.println("4. Change Pace");
+            Terminal.println("5. Change food rations");
+            Terminal.println("6. Stop to Rest");
+            Terminal.println("7. Attempt to Trade");
+            Terminal.println("8. Talk to Locals");
+            Terminal.println("9. Buy supplies");
+        } else {
+            Terminal.println("1. Continue on Trail");
+            Terminal.println("2. Check supplies");
+            Terminal.println("3. Look at Map");
+            Terminal.println("4. Change Pace");
+            Terminal.println("5. Change food rations");
+            Terminal.println("6. Stop to Rest");
+            Terminal.println("7. Attempt to Trade");
+            Terminal.println("8. Hunt for food");
+        }
     }
 
     private void createPlayer() {
@@ -271,7 +303,13 @@ public class Game {
 
 
     private void buySupplies() {
+        TextIO.getln();
+
         Terminal.println("You have $" + String.valueOf(player.getMoney()) + "0 to spend. You can get what you need at Matt's general store.");
+
+        TextIO.getln();
+        Terminal.clean();
+
         Terminal.println("Hello, I'm Matt! So you're going to Oregon! I can fix you up with what you need:");
         Terminal.println("- a team of oxen to pull your wagon");
         Terminal.println("- clothing for both summer and winter");
@@ -314,5 +352,14 @@ public class Game {
         player.addItem(new Item("Tongues", parts[2]));
 
         Terminal.clean();
+    }
+
+    public static boolean isCurrentLocation(ArrayList<Landmark> locations, int currentLocation) {
+        for (Landmark landmark : locations) {
+            if (landmark.getDistanceFromPrevious() == currentLocation) {
+                return true;
+            }
+        }
+        return false;
     }
 }
