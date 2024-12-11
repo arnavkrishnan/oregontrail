@@ -3,6 +3,9 @@
 - Day logic
 
 Framework complete! Dec 9
+- Prints for everything but weather Dec 11
+
+TODO: Weather!!!
 
 To commit:
 
