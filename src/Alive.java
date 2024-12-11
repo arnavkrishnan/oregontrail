@@ -1,12 +1,12 @@
 public abstract class Alive {
     private String name;
-    private int health;
+    private double health;
     private int morale;
     private int hygiene;
 
     public Alive(String name) {
         this.name = name;
-        this.health = 100;
+        this.health = 3;
         this.morale = 100;
         this.hygiene = 100;
     }
@@ -22,7 +22,7 @@ public abstract class Alive {
         this.name = name;
     }
 
-    public int getHealth() {
+    public double getHealth() {
         return health;
     }
 

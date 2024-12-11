@@ -12,9 +12,11 @@ public class Game {
     private int milesTraveled;
     private int daysTraveled;
     private int month;
+    private int weather;
     private HashMap<Integer, String> paceEffectMap;
     private HashMap<Integer, String> healthEffectMap;
     private HashMap<Integer, String> rationEffectMap;
+    private HashMap<Integer, String> weatherEffectMap;
 
     public Game() {
         this.companions = new ArrayList<>();
@@ -23,6 +25,7 @@ public class Game {
         this.gameRunning = true;
         this.rations = 1;
         this.pace = 1;
+        this.weather = 5;
         this.milesTraveled = 0;
         this.daysTraveled = 0;
 
@@ -40,10 +43,71 @@ public class Game {
         setupPaceEffects();
         setupHealthEffects();
         setupRationEffects();
+        setupWeatherEffects();
     }
 
     public void continueOnTrail() {
+        milesTraveled += pace * 5;
+        daysTraveled++;
+        player.subtractItem(new Item("Food", rations*companions.size()*3));
+        calculateWeather();
     }
+
+    public void calculateWeather() {
+    Random rand = new Random();
+    int currentMonth = Integer.parseInt(Date.calculate(daysTraveled, month, "month"));
+    boolean isColdMonth = (currentMonth == 11 || currentMonth == 12 || currentMonth == 1 || currentMonth == 2);
+    boolean isHotMonth = (currentMonth == 6 || currentMonth == 7 || currentMonth == 8);
+
+    if (weather == 8 && rand.nextInt(4) == 1) {
+        weather = 3;
+    } else if (weather == 1 && rand.nextInt(4) == 1) {
+        weather = 2;
+    } else if (!(weather == 1 || weather == 7)) {
+        int seasonFactor = currentMonth % 6;
+
+        if (rand.nextInt(seasonFactor + 1) == 1) {
+            if (isColdMonth) {
+                if (weather > 1) weather--;
+            } else if (isHotMonth) {
+                if (weather > 3) weather--;
+            } else {
+                weather--;
+            }
+        } else if (rand.nextInt(6 - seasonFactor) == 1) {
+            if (isHotMonth) {
+                if (weather < 7) weather++;
+            } else if (isColdMonth) {
+                if (weather < 6) weather++;
+            } else {
+                weather++;
+            }
+        }
+    } else if (weather == 7 && rand.nextInt(3) == 1) {
+        weather--;
+    } else if (rand.nextInt(3) == 1) {
+        if (weather == 3 && rand.nextInt(3) == 1) {
+            weather++;
+        } else if (weather == 2 && rand.nextInt(3) == 1) {
+            weather--;
+        } else {
+            weather++;
+        }
+    }
+
+    if (weather < 1) weather = 1;
+    if (weather > 8) weather = 8;
+
+    if (weather == 8 && weatherEffectMap.get(weather) != "Thunderstorm" && rand.nextInt(4) == 1) {
+        weather = 3;
+    }
+    if (weather == 1 && weatherEffectMap.get(weather) != "Blizzard" && rand.nextInt(4) == 1) {
+        weather = 2;
+    }
+
+    if (weather < 1) weather = 1;
+    if (weather > 8) weather = 8;
+}
 
     public void checkSupplies() {
         TextIO.getln();
@@ -53,6 +117,7 @@ public class Game {
     }
 
     public void lookAtMap() {
+        TextIO.getln();
         System.out.println("Map of the Oregon Trail:");
         System.out.println("----------------------------------------");
 
@@ -92,6 +157,7 @@ public class Game {
         System.out.println("L - Landmark");
         System.out.println("R - River");
         System.out.println("----------------------------------------");
+        TextIO.getln();
     }
 
     public void stopToRest() {
@@ -177,9 +243,9 @@ public class Game {
 
     private void setupHealthEffects() {
         healthEffectMap = new HashMap<>();
-        healthEffectMap.put(1, "Good");
+        healthEffectMap.put(3, "Good");
         healthEffectMap.put(2, "Fair");
-        healthEffectMap.put(3, "Poor");
+        healthEffectMap.put(1, "Poor");
     }
 
     private void setupRationEffects() {
@@ -187,6 +253,18 @@ public class Game {
         rationEffectMap.put(1, "Filling");
         rationEffectMap.put(2, "Meager");
         rationEffectMap.put(3, "Bare-bones");
+    }
+
+    private void setupWeatherEffects() {
+        weatherEffectMap = new HashMap<>();
+        weatherEffectMap.put(1, "Blizzard");
+        weatherEffectMap.put(2, "Snowing");
+        weatherEffectMap.put(3, "Raining");
+        weatherEffectMap.put(4, "Cold");
+        weatherEffectMap.put(5, "Moderate");
+        weatherEffectMap.put(6, "Warm");
+        weatherEffectMap.put(7, "Hot");
+        weatherEffectMap.put(8, "Thunderstorm");
     }
 
     private void createPlayer() {
@@ -247,6 +325,12 @@ public class Game {
         locations.add(new River("Green River", "A large river, sometimes difficult to ford, especially during high water.", 500));
         locations.add(new River("Snake River", "A challenging river with rocky terrain and swift currents.", 750));
         locations.add(new River("Columbia River", "A dangerous river at the end of the trail, with rapids that test even the most skilled navigators.", 1300));
+
+        Collections.sort(locations, new Comparator<Landmark>() {
+            public int compare(Landmark l1, Landmark l2) {
+                return Integer.compare(l1.getDistanceFromPrevious(), l2.getDistanceFromPrevious());
+            }
+        });
     }
 
     public void init() {
@@ -266,8 +350,8 @@ public class Game {
             Terminal.clean();
             if (isCurrentLocation(locations, milesTraveled)) {}
 
-            Terminal.println("Today's Date: " + Date.calculate(daysTraveled, month));
-            Terminal.println("Weather: feature unavailable");
+            Terminal.println("Today's Date: " + Date.calculate(daysTraveled, month, "date"));
+            Terminal.println("Weather: " + weatherEffectMap.get(this.weather));
             Terminal.println("Health: " + healthEffectMap.get(calculateHealth(player, companions)));
             Terminal.println("Pace: " + paceEffectMap.get(this.pace));
             Terminal.println("Rations: " + rationEffectMap.get(this.rations));
