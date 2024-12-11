@@ -12,6 +12,9 @@ public class Game {
     private int milesTraveled;
     private int daysTraveled;
     private int month;
+    private HashMap<Integer, String> paceEffectMap;
+    private HashMap<Integer, String> healthEffectMap;
+    private HashMap<Integer, String> rationEffectMap;
 
     public Game() {
         this.companions = new ArrayList<>();
@@ -24,7 +27,6 @@ public class Game {
         this.daysTraveled = 0;
 
         init();
-
         Terminal.clean();
         initLocations();
         Terminal.clean();
@@ -35,68 +37,9 @@ public class Game {
         Terminal.clean();
         buySupplies();
         Terminal.clean();
-    }
-
-    public void init(){
-        Terminal.clean();
-        Terminal.print("***THE OREGON TRAIL***\n");
-        Terminal.print("***starting game***");
-        Terminal.sleep(1000);
-       // Terminal.load(100, 100);
-    }
-
-    public void start() {
-        int choice;
-        while (gameRunning) {
-            Terminal.clean();
-            if (isCurrentLocation(locations, milesTraveled)){
-            }
-            Terminal.println("Today's Date: " + Date.calculate(daysTraveled, month));
-            Terminal.println("Weather: feature unavailable");
-            Terminal.println("Health: feature unavailable");
-            Terminal.println("Pace: " + this.pace);
-            showMainMenu();
-            choice = TextIO.getInt();
-            switch (choice) {
-                case 1:
-                    continueOnTrail();
-                    break;
-                case 2:
-                    checkSupplies();
-                    break;
-                case 3:
-                    lookAtMap();
-                    break;
-                case 4:
-                    changePace();
-                    break;
-                case 5:
-                    changeFoodRations();
-                    break;
-                case 6:
-                    stopToRest();
-                    break;
-                case 7:
-                    attemptToTrade();
-                    break;
-                case 8:
-                    if (isCurrentLocation(locations, milesTraveled)){
-                        talkToLocals();
-                    } else {
-                        hunt();
-                    }
-                    break;
-                case 9:
-                    if (isCurrentLocation(locations, milesTraveled)){
-                        atFort();
-                        break;
-                    }
-                default:
-                    Terminal.print("Invalid choice, please try again.");
-                    break;
-            }
-            
-        }
+        setupPaceEffects();
+        setupHealthEffects();
+        setupRationEffects();
     }
 
     public void continueOnTrail() {
@@ -149,51 +92,6 @@ public class Game {
         System.out.println("L - Landmark");
         System.out.println("R - River");
         System.out.println("----------------------------------------");
-}
-
-
-    public void changePace() {
-        Terminal.println("Change Pace");
-        switch(pace){
-            case 1:
-                Terminal.println("(Currently 'steady')");
-                break;
-            case 2:
-                Terminal.println("(Currently 'strenuous')");
-                break;
-            case 3:
-                Terminal.println("(Currently 'grueling')");
-                break;
-            default:
-                Terminal.println("Uh oh! You've come across an error in the game that the stupid developer couldn't find. sorry.");
-                break;
-            }
-        Terminal.println("The pace at which you travel can change. Your choices are:");
-        Terminal.println("1. Steady\n2. Strenuous\n3. Grueling");
-        Terminal.print("What is your choice? ");
-        this.pace = TextIO.getlnInt();
-    }
-
-    public void changeFoodRations() {
-        Terminal.println("Change food rations");
-        switch(pace){
-            case 1:
-                Terminal.println("(Currently 'filling')");
-                break;
-            case 2:
-                Terminal.println("(Currently 'meager')");
-                break;
-            case 3:
-                Terminal.println("(Currently 'bare bones')");
-                break;
-            default:
-                Terminal.println("Uh oh! You've come across an error in the game that the stupid developer couldn't find. sorry.");
-                break;
-            }
-        Terminal.println("The pace at which you travel can change. Your choices are:");
-        Terminal.println("1. filling - meals are large and generous.\n2. meager - meals are small, but adequate.\n3. bare bones - meals are very small; everyone stays hungry");
-        Terminal.print("What is your choice? ");
-        this.pace = TextIO.getlnInt();
     }
 
     public void stopToRest() {
@@ -213,94 +111,10 @@ public class Game {
     public void atFort(){
     }
 
-    private void showMainMenu() {
-        if(isCurrentLocation(locations, milesTraveled)){
-            Terminal.println("1. Continue on Trail");
-            Terminal.println("2. Check supplies");
-            Terminal.println("3. Look at Map");
-            Terminal.println("4. Change Pace");
-            Terminal.println("5. Change food rations");
-            Terminal.println("6. Stop to Rest");
-            Terminal.println("7. Attempt to Trade");
-            Terminal.println("8. Talk to Locals");
-            Terminal.println("9. Buy supplies");
-        } else {
-            Terminal.println("1. Continue on Trail");
-            Terminal.println("2. Check supplies");
-            Terminal.println("3. Look at Map");
-            Terminal.println("4. Change Pace");
-            Terminal.println("5. Change food rations");
-            Terminal.println("6. Stop to Rest");
-            Terminal.println("7. Attempt to Trade");
-            Terminal.println("8. Hunt for food");
-        }
-    }
-
-    private void createPlayer() {
-        Terminal.print("Choose your profession: (1) Banker from Boston (2) Carpenter from Ohio (3) Farmer from Illinois: ");
-        int professionChoice = TextIO.getlnInt();
-        String profession = "";
-        int startingMoney = 0;
-
-        switch (professionChoice) {
-            case 1: 
-                profession = "Banker from Boston"; 
-                startingMoney = 1600;
-                break;
-            case 2: 
-                profession = "Carpenter from Ohio"; 
-                startingMoney = 800;
-                break;
-            case 3: 
-                profession = "Farmer from Illinois"; 
-                startingMoney = 400;
-                break;
-        }
-
-        Terminal.print("Enter your name: ");
-        String playerName = TextIO.getlnString();
-
-        this.player = new Player(playerName, startingMoney, profession);
-    }
-
-    private void createCompanions() {
-        for (int i = 0; i < 4; i++) {
-            Terminal.print("Enter name for companion " + (i + 1) + ": ");
-            String name = TextIO.getlnString();
-            companions.add(new Companion(name));
-        }
-    }
-
     private void chooseDepartureMonth() {
         Terminal.print("When would you like to leave? (1) March (2) April (3) May (4) June (5) July: ");
         this.month = TextIO.getInt() + 1;
     }
-
-    private void initLocations() {
-        locations.add(new Fort("Independence", "A trading post and starting point.", 0));  
-        locations.add(new Fort("Fort Kearny", "A fort on the plains, providing supplies and protection.", 200));
-        locations.add(new Landmark("Chimney Rock", "A distinctive rock formation in Nebraska, often used by travelers to navigate the plains.", 250));
-        locations.add(new Fort("Fort Laramie", "A military post that offers resupply and repairs.", 350));
-        locations.add(new Landmark("Independence Rock", "A massive rock formation that served as a major landmark and guide for westward travelers.", 400));
-        locations.add(new Landmark("South Pass", "A high pass through the Rocky Mountains that served as a major route for pioneers.", 450));
-        locations.add(new Fort("Fort Bridger", "A trading post and the final fort on the trail.", 550));
-        locations.add(new Landmark("Soda Springs", "A popular resting spot, famous for its naturally carbonated spring.", 700));
-        locations.add(new Fort("Fort Hall", "A fur trading post and rest stop in the Snake River region.", 800));
-        locations.add(new Fort("Fort Boise", "A fort established to protect travelers from Indian attacks and offer supplies.", 950));
-        locations.add(new Landmark("Blue Mountains", "A mountain range in Oregon, known for its treacherous terrain and challenging climbs.", 1100));
-        locations.add(new Landmark("The Dalles", "A series of rapids in the Columbia River, requiring travelers to portage their wagons.", 1200));
-        locations.add(new Fort("Fort Walla Walla", "A fort on the Columbia River, providing a break before reaching the Cascades.", 1250));
-        locations.add(new Landmark("Oregon City", "The final destination for travelers on the Oregon Trail, where many pioneers hoped to settle in the fertile Willamette Valley.", 1350));
-
-        locations.add(new River("Kansas River", "A dangerous river crossing in the Kansas Territory.", 100));
-        locations.add(new River("Platte River", "A major river that many pioneers use to guide their way west.", 150));
-        locations.add(new River("North Platte River", "A branch of the Platte River that travelers followed.", 250));
-        locations.add(new River("Sweetwater River", "A river that flows through the Rocky Mountains and was often crossed by wagon trains.", 350));
-        locations.add(new River("Green River", "A large river, sometimes difficult to ford, especially during high water.", 500));
-        locations.add(new River("Snake River", "A challenging river with rocky terrain and swift currents.", 750));
-        locations.add(new River("Columbia River", "A dangerous river at the end of the trail, with rapids that test even the most skilled navigators.", 1300));
-    }
-
 
     private void buySupplies() {
         TextIO.getln();
@@ -352,6 +166,227 @@ public class Game {
         player.addItem(new Item("Tongues", parts[2]));
 
         Terminal.clean();
+    }
+
+    private void setupPaceEffects() {
+        paceEffectMap = new HashMap<>();
+        paceEffectMap.put(1, "Steady");
+        paceEffectMap.put(2, "Strenuous");
+        paceEffectMap.put(3, "Grueling");
+    }
+
+    private void setupHealthEffects() {
+        healthEffectMap = new HashMap<>();
+        healthEffectMap.put(1, "Good");
+        healthEffectMap.put(2, "Fair");
+        healthEffectMap.put(3, "Poor");
+    }
+
+    private void setupRationEffects() {
+        rationEffectMap = new HashMap<>();
+        rationEffectMap.put(1, "Filling");
+        rationEffectMap.put(2, "Meager");
+        rationEffectMap.put(3, "Bare-bones");
+    }
+
+    private void createPlayer() {
+        Terminal.print("Choose your profession: (1) Banker from Boston (2) Carpenter from Ohio (3) Farmer from Illinois: ");
+        int professionChoice = TextIO.getlnInt();
+        String profession = "";
+        int startingMoney = 0;
+
+        switch (professionChoice) {
+            case 1: 
+                profession = "Banker from Boston"; 
+                startingMoney = 1600;
+                break;
+            case 2: 
+                profession = "Carpenter from Ohio"; 
+                startingMoney = 800;
+                break;
+            case 3: 
+                profession = "Farmer from Illinois"; 
+                startingMoney = 400;
+                break;
+        }
+
+        Terminal.print("Enter your name: ");
+        String playerName = TextIO.getlnString();
+
+        this.player = new Player(playerName, startingMoney, profession);
+    }
+
+    private void createCompanions() {
+        for (int i = 0; i < 4; i++) {
+            Terminal.print("Enter name for companion " + (i + 1) + ": ");
+            String name = TextIO.getlnString();
+            companions.add(new Companion(name));
+        }
+    }
+
+    private void initLocations() {
+        locations.add(new Fort("Independence", "A trading post and starting point.", 0));  
+        locations.add(new Fort("Fort Kearny", "A fort on the plains, providing supplies and protection.", 200));
+        locations.add(new Landmark("Chimney Rock", "A distinctive rock formation in Nebraska, often used by travelers to navigate the plains.", 250));
+        locations.add(new Fort("Fort Laramie", "A military post that offers resupply and repairs.", 350));
+        locations.add(new Landmark("Independence Rock", "A massive rock formation that served as a major landmark and guide for westward travelers.", 400));
+        locations.add(new Landmark("South Pass", "A high pass through the Rocky Mountains that served as a major route for pioneers.", 450));
+        locations.add(new Fort("Fort Bridger", "A trading post and the final fort on the trail.", 550));
+        locations.add(new Landmark("Soda Springs", "A popular resting spot, famous for its naturally carbonated spring.", 700));
+        locations.add(new Fort("Fort Hall", "A fur trading post and rest stop in the Snake River region.", 800));
+        locations.add(new Fort("Fort Boise", "A fort established to protect travelers from Indian attacks and offer supplies.", 950));
+        locations.add(new Landmark("Blue Mountains", "A mountain range in Oregon, known for its treacherous terrain and challenging climbs.", 1100));
+        locations.add(new Landmark("The Dalles", "A series of rapids in the Columbia River, requiring travelers to portage their wagons.", 1200));
+        locations.add(new Fort("Fort Walla Walla", "A fort on the Columbia River, providing a break before reaching the Cascades.", 1250));
+        locations.add(new Landmark("Oregon City", "The final destination for travelers on the Oregon Trail, where many pioneers hoped to settle in the fertile Willamette Valley.", 1350));
+
+        locations.add(new River("Kansas River", "A dangerous river crossing in the Kansas Territory.", 100));
+        locations.add(new River("Platte River", "A major river that many pioneers use to guide their way west.", 150));
+        locations.add(new River("North Platte River", "A branch of the Platte River that travelers followed.", 250));
+        locations.add(new River("Sweetwater River", "A river that flows through the Rocky Mountains and was often crossed by wagon trains.", 350));
+        locations.add(new River("Green River", "A large river, sometimes difficult to ford, especially during high water.", 500));
+        locations.add(new River("Snake River", "A challenging river with rocky terrain and swift currents.", 750));
+        locations.add(new River("Columbia River", "A dangerous river at the end of the trail, with rapids that test even the most skilled navigators.", 1300));
+    }
+
+    public void init() {
+        Terminal.clean();
+        Terminal.print("***THE OREGON TRAIL***\n");
+        Terminal.print("***starting game***");
+        Terminal.sleep(1000);
+    }
+
+    public int calculateHealth(Player p, ArrayList<Companion> c){
+        return (int)(p.getHealth() + c.get(0).getHealth() + c.get(1).getHealth() + c.get(2).getHealth() + c.get(3).getHealth())/5;
+    }
+
+    public void start() {
+        int choice;
+        while (gameRunning) {
+            Terminal.clean();
+            if (isCurrentLocation(locations, milesTraveled)) {}
+
+            Terminal.println("Today's Date: " + Date.calculate(daysTraveled, month));
+            Terminal.println("Weather: feature unavailable");
+            Terminal.println("Health: " + healthEffectMap.get(calculateHealth(player, companions)));
+            Terminal.println("Pace: " + paceEffectMap.get(this.pace));
+            Terminal.println("Rations: " + rationEffectMap.get(this.rations));
+
+            showMainMenu();
+            choice = TextIO.getInt();
+            switch (choice) {
+                case 1:
+                    continueOnTrail();
+                    break;
+                case 2:
+                    checkSupplies();
+                    break;
+                case 3:
+                    lookAtMap();
+                    break;
+                case 4:
+                    changePace();
+                    break;
+                case 5:
+                    changeFoodRations();
+                    break;
+                case 6:
+                    stopToRest();
+                    break;
+                case 7:
+                    attemptToTrade();
+                    break;
+                case 8:
+                    if (isCurrentLocation(locations, milesTraveled)) {
+                        talkToLocals();
+                    } else {
+                        hunt();
+                    }
+                    break;
+                case 9:
+                    if (isCurrentLocation(locations, milesTraveled)) {
+                        atFort();
+                        break;
+                    }
+                default:
+                    Terminal.print("Invalid choice, please try again.");
+                    break;
+            }
+        }
+    }
+
+
+
+    public void changePace() {
+        Terminal.println("Change Pace");
+        switch (pace) {
+            case 1:
+                Terminal.println("(Currently 'steady')");
+                break;
+            case 2:
+                Terminal.println("(Currently 'strenuous')");
+                break;
+            case 3:
+                Terminal.println("(Currently 'grueling')");
+                break;
+            default:
+                Terminal.println("Uh oh! Error in the game.");
+                break;
+        }
+        Terminal.println("The pace at which you travel can change. Your choices are:");
+        Terminal.println("1. Steady - a steady pace with moderate resource usage.");
+        Terminal.println("2. Strenuous - faster progress, but uses more resources.");
+        Terminal.println("3. Grueling - very fast, but risks exhaustion and health.");
+        Terminal.print("What is your choice? ");
+        this.pace = TextIO.getlnInt();
+        Terminal.println("New Pace Effect: " + paceEffectMap.get(this.pace)); // Show updated effect
+    }
+
+    public void changeFoodRations() {
+        Terminal.println("Change food rations");
+        switch (rations) {
+            case 1:
+                Terminal.println("(Currently 'filling')");
+                break;
+            case 2:
+                Terminal.println("(Currently 'meager')");
+                break;
+            case 3:
+                Terminal.println("(Currently 'bare bones')");
+                break;
+            default:
+                Terminal.println("Uh oh! Error in the game.");
+                break;
+        }
+        Terminal.println("The amount of food you distribute can change. Your choices are:");
+        Terminal.println("1. Filling - everyone eats generously.");
+        Terminal.println("2. Meager - sufficient, but small.");
+        Terminal.println("3. Bare bones - minimal, everyone stays hungry.");
+        Terminal.print("What is your choice? ");
+        this.rations = TextIO.getlnInt();
+    }
+
+    private void showMainMenu() {
+        if (isCurrentLocation(locations, milesTraveled)) {
+            Terminal.println("1. Continue on Trail");
+            Terminal.println("2. Check supplies");
+            Terminal.println("3. Look at Map");
+            Terminal.println("4. Change Pace");
+            Terminal.println("5. Change food rations");
+            Terminal.println("6. Stop to Rest");
+            Terminal.println("7. Attempt to Trade");
+            Terminal.println("8. Talk to Locals");
+            Terminal.println("9. Buy supplies");
+        } else {
+            Terminal.println("1. Continue on Trail");
+            Terminal.println("2. Check supplies");
+            Terminal.println("3. Look at Map");
+            Terminal.println("4. Change Pace");
+            Terminal.println("5. Change food rations");
+            Terminal.println("6. Stop to Rest");
+            Terminal.println("7. Attempt to Trade");
+            Terminal.println("8. Hunt for food");
+        }
     }
 
     public static boolean isCurrentLocation(ArrayList<Landmark> locations, int currentLocation) {
