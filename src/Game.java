@@ -6,12 +6,13 @@ public class Game {
     private ArrayList<Companion> companions;
     private ArrayList<Landmark> locations;
     private ArrayList<Oxen> oxen;
-    private Location currentLocation;
+    private int currentLocation;
     private boolean gameRunning;
     private int rations;
     private int pace;
     private int milesTraveled;
     private int daysTraveled;
+    private int month;
 
     public Game() {
         this.companions = new ArrayList<>();
@@ -48,6 +49,9 @@ public class Game {
     public void start() {
         int choice;
         while (gameRunning) {
+            Terminal.println("Today's Date: " + Date.calculate(daysTraveled, month));
+            Terminal.println("Days Traveled: " + daysTraveled);
+            Terminal.println("Miles Traveled: " + milesTraveled);
             showMainMenu();
             choice = TextIO.getInt();
             switch (choice) {
@@ -88,12 +92,52 @@ public class Game {
 
     public void checkSupplies() {
         player.inventoryToString();
-        TextIO.getln();
+        TextIO.getAnyChar();
         Terminal.clean();
     }
 
     public void lookAtMap() {
-    }
+        System.out.println("Map of the Oregon Trail:");
+        System.out.println("----------------------------------------");
+
+        StringBuilder pathLine = new StringBuilder();
+        StringBuilder markerLine = new StringBuilder();
+
+        int currentIndex = currentLocation;
+
+        for (int i = 0; i < locations.size(); i++) {
+            Location location = locations.get(i);
+
+            pathLine.append("-");
+
+            char marker = ' ';
+
+            if (location instanceof Fort) {
+                marker = 'F';
+            } else if (location instanceof River) {
+                marker = 'R';
+            } else if (location instanceof Landmark) {
+                marker = 'L';
+            }
+
+            if (i == currentIndex) {
+                marker = '*';
+            }
+
+            markerLine.append(marker);
+        }
+
+        System.out.println(pathLine);
+        System.out.println(markerLine);
+
+        System.out.println("\nLegend:");
+        System.out.println("* - Current Location");
+        System.out.println("F - Fort");
+        System.out.println("L - Landmark");
+        System.out.println("R - River");
+        System.out.println("----------------------------------------");
+}
+
 
     public void changePace() {
         Terminal.println("Change Pace");
@@ -138,7 +182,7 @@ public class Game {
 
     private void createPlayer() {
         Terminal.print("Choose your profession: (1) Banker from Boston (2) Carpenter from Ohio (3) Farmer from Illinois: ");
-        int professionChoice = TextIO.getInt();
+        int professionChoice = TextIO.getlnInt();
         String profession = "";
         int startingMoney = 0;
 
@@ -173,7 +217,7 @@ public class Game {
 
     private void chooseDepartureMonth() {
         Terminal.print("When would you like to leave? (1) March (2) April (3) May (4) June (5) July: ");
-        int monthChoice = TextIO.getInt();
+        this.month = TextIO.getInt() + 1;
     }
 
     private void initLocations() {
@@ -203,7 +247,7 @@ public class Game {
 
 
     private void buySupplies() {
-        Terminal.println("You have $" + String.valueOf(player.getMoney()) + " to spend. You can get what you need at Matt's general store.");
+        Terminal.println("You have $" + String.valueOf(player.getMoney()) + "0 to spend. You can get what you need at Matt's general store.");
         Terminal.sleep(2000);
         Terminal.clean();
         Terminal.println("Hello, I'm Matt! So you're going to Oregon! I can fix you up with what you need:");
