@@ -169,9 +169,12 @@ public class Game {
     }
 
     public void talkToLocals() {
+        Terminal.print("A local tells you: " + getLastVisitedLandmark().getDescription());
+        TextIO.getln();
     }
 
     public void hunt(){
+        
     }
 
     public void atFort(){
@@ -348,8 +351,9 @@ public class Game {
         int choice;
         while (gameRunning) {
             Terminal.clean();
-            if (isCurrentLocation(locations, milesTraveled)) {}
-
+            if (isCurrentLocation(locations, milesTraveled)) {
+                Terminal.println(getLastVisitedLandmark().getName());
+            }
             Terminal.println("Today's Date: " + Date.calculate(daysTraveled, month, "date"));
             Terminal.println("Weather: " + weatherEffectMap.get(this.weather));
             Terminal.println("Health: " + healthEffectMap.get(calculateHealth(player, companions)));
@@ -473,7 +477,7 @@ public class Game {
         }
     }
 
-    public static boolean isCurrentLocation(ArrayList<Landmark> locations, int currentLocation) {
+    public boolean isCurrentLocation(ArrayList<Landmark> locations, int currentLocation) {
         for (Landmark landmark : locations) {
             if (landmark.getDistanceFromPrevious() == currentLocation) {
                 return true;
@@ -481,4 +485,18 @@ public class Game {
         }
         return false;
     }
+
+    public Landmark getLastVisitedLandmark() {
+        Landmark lastVisited = null;
+        for (Landmark location : locations) {
+            if (location instanceof Landmark) {
+                if (location.getDistanceFromPrevious() <= milesTraveled) {
+                    lastVisited = location;
+                }
+            }
+        }
+
+    return lastVisited;
+}
+
 }
