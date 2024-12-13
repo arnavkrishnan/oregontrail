@@ -14,6 +14,8 @@ public class Date {
                     return (month + 1) + "/" + (days + 1) + "/" + year;
                 } else if (type.equals("month")){
                     return String.valueOf(month+1);
+                } else if (type.equals("day")){
+                    return String.valueOf(days+1);
                 }
             } else {
                 days -= daysInMonth;

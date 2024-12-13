@@ -3,12 +3,14 @@ public abstract class Alive {
     private double health;
     private int morale;
     private int hygiene;
+    private int stamina;
 
     public Alive(String name) {
         this.name = name;
         this.health = 3;
         this.morale = 100;
         this.hygiene = 100;
+        this.stamina = 100;
     }
 
     public abstract void act();
@@ -26,7 +28,7 @@ public abstract class Alive {
         return health;
     }
 
-    public void setHealth(int health) {
+    public void setHealth(double health) {
         this.health = health;
     }
 
@@ -44,5 +46,13 @@ public abstract class Alive {
 
     public void setHygiene(int hygiene) {
         this.hygiene = hygiene;
+    }
+
+    public int getStamina() {
+        return stamina;
+    }
+
+    public void setStamina(int stamina) {
+        this.stamina = stamina;
     }
 }

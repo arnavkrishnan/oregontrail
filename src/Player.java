@@ -46,8 +46,12 @@ public class Player extends Alive {
         this.inventory.addItem(item);
     }
 
-    public void subtractItem(Item item){
-        this.inventory.subtractItemQuantity(item.getName(), item.getQuantity());
+    public boolean subtractItem(Item item){
+        if (this.inventory.subtractItemQuantity(item.getName(), item.getQuantity())){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void makeCharge(double x) {

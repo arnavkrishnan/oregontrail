@@ -49,65 +49,115 @@ public class Game {
     public void continueOnTrail() {
         milesTraveled += pace * 5;
         daysTraveled++;
-        player.subtractItem(new Item("Food", rations*companions.size()*3));
+        if (player.subtractItem(new Item("Food", rations*companions.size()*3))){
+            if (rations==1){
+                ;
+            } else if (rations == 2){
+                player.setMorale(player.getMorale()-2);
+                player.setHealth(player.getHealth()-0.052);
+                player.setHygiene(player.getHygiene()-1);
+                player.setStamina(player.getStamina()-3);
+
+                for (Companion c : companions){
+                    c.setMorale(c.getMorale()-2);
+                    c.setHealth(c.getHealth()-0.052);
+                    c.setHygiene(c.getHygiene()-1);
+                    c.setStamina(c.getStamina()-3);
+                }
+            } else {
+                player.setMorale(player.getMorale()-5);
+                player.setHealth(player.getHealth()-0.13);
+                player.setHygiene(player.getHygiene()-3);
+                player.setStamina(player.getStamina()-7);
+
+                for (Companion c : companions){
+                    c.setMorale(c.getMorale()-5);
+                    c.setHealth(c.getHealth()-0.11);
+                    c.setHygiene(c.getHygiene()-3);
+                    c.setStamina(c.getStamina()-7);
+                }
+            }
+        } else {
+            player.setMorale(player.getMorale()-12);
+            player.setHealth(player.getHealth()-0.27);
+            player.setHygiene(player.getHygiene()-7);
+            player.setStamina(player.getStamina()-18);
+
+            for (Companion c : companions){
+                c.setMorale(c.getMorale()-12);
+                c.setHealth(c.getHealth()-0.31);
+                c.setHygiene(c.getHygiene()-7);
+                c.setStamina(c.getStamina()-18);
+            }
+        } 
         calculateWeather();
     }
 
     public void calculateWeather() {
-    Random rand = new Random();
-    int currentMonth = Integer.parseInt(Date.calculate(daysTraveled, month, "month"));
-    boolean isColdMonth = (currentMonth == 11 || currentMonth == 12 || currentMonth == 1 || currentMonth == 2);
-    boolean isHotMonth = (currentMonth == 6 || currentMonth == 7 || currentMonth == 8);
-
-    if (weather == 8 && rand.nextInt(4) == 1) {
-        weather = 3;
-    } else if (weather == 1 && rand.nextInt(4) == 1) {
-        weather = 2;
-    } else if (!(weather == 1 || weather == 7)) {
-        int seasonFactor = currentMonth % 6;
-
-        if (rand.nextInt(seasonFactor + 1) == 1) {
-            if (isColdMonth) {
-                if (weather > 1) weather--;
-            } else if (isHotMonth) {
-                if (weather > 3) weather--;
-            } else {
-                weather--;
+        Random rand = new Random();
+        int currentMonth = Integer.parseInt(Date.calculate(daysTraveled, month, "month"));
+        int currentDay = Integer.parseInt(Date.calculate(daysTraveled, month, "day"));
+    
+        boolean isColdMonth = (currentMonth == 12 || currentMonth == 1 || currentMonth == 2);
+        boolean isHotMonth = (currentMonth == 6 || currentMonth == 7 || currentMonth == 8);
+    
+        if (isColdMonth) {
+            if (this.weather == 4 || this.weather == 5) {
+                if (rand.nextInt(10) < 2) {
+                    this.weather = (this.weather == 5) ? 2 : 1;
+                } else if (rand.nextInt(10) < 6) {
+                    this.weather = 2;
+                }
             }
-        } else if (rand.nextInt(6 - seasonFactor) == 1) {
-            if (isHotMonth) {
-                if (weather < 7) weather++;
-            } else if (isColdMonth) {
-                if (weather < 6) weather++;
-            } else {
-                weather++;
+        } else if (currentMonth >= 3 && currentMonth <= 5) {
+            if (this.weather == 3) {
+                if (rand.nextInt(10) < 2) {
+                    this.weather = 8;
+                }
+            } else if (this.weather == 4 || this.weather == 5) {
+                if (rand.nextInt(10) < 4) {
+                    this.weather = 3;
+                }
+            }
+        } else if (isHotMonth) {
+            if (this.weather == 7 || this.weather == 6) {
+                if (rand.nextInt(10) < 4) {
+                    this.weather = 8;
+                } else if (rand.nextInt(10) < 3) {
+                    this.weather = 3;
+                }
+            }
+        } else if (currentMonth >= 9 && currentMonth <= 11) {
+            if (this.weather == 4 || this.weather == 5) {
+                if (rand.nextInt(10) < 3) {
+                    this.weather = 3;
+                } else if (rand.nextInt(10) < 2) {
+                    this.weather = 8;
+                }
             }
         }
-    } else if (weather == 7 && rand.nextInt(3) == 1) {
-        weather--;
-    } else if (rand.nextInt(3) == 1) {
-        if (weather == 3 && rand.nextInt(3) == 1) {
-            weather++;
-        } else if (weather == 2 && rand.nextInt(3) == 1) {
-            weather--;
-        } else {
-            weather++;
+    
+        if (this.weather == 2 && this.weather != 3) {
+            if (rand.nextInt(4) == 1) {
+                this.weather = 3;
+            }
         }
+    
+        if (this.weather == 1 && this.weather != 2) {
+            if (rand.nextInt(4) == 1) {
+                this.weather = 2;
+            }
+        }
+    
+        if (this.weather == 8 && this.weather != 3) {
+            if (rand.nextInt(4) == 1) {
+                this.weather = 3;
+            }
+        }
+    
+        if (this.weather < 1) this.weather = 1;
+        if (this.weather > 8) this.weather = 8;
     }
-
-    if (weather < 1) weather = 1;
-    if (weather > 8) weather = 8;
-
-    if (weather == 8 && weatherEffectMap.get(weather) != "Thunderstorm" && rand.nextInt(4) == 1) {
-        weather = 3;
-    }
-    if (weather == 1 && weatherEffectMap.get(weather) != "Blizzard" && rand.nextInt(4) == 1) {
-        weather = 2;
-    }
-
-    if (weather < 1) weather = 1;
-    if (weather > 8) weather = 8;
-}
 
     public void checkSupplies() {
         TextIO.getln();
@@ -169,6 +219,8 @@ public class Game {
     }
 
     public void talkToLocals() {
+        Terminal.clean();
+        TextIO.getln();
         Terminal.print("A local tells you: " + getLastVisitedLandmark().getDescription());
         TextIO.getln();
     }
@@ -351,6 +403,13 @@ public class Game {
         int choice;
         while (gameRunning) {
             Terminal.clean();
+            Terminal.println("DEV TOOLS:");
+            Terminal.println("P-HEALTH: " + player.getHealth());
+            Terminal.println("P-STAMINA: " + player.getStamina());
+            Terminal.println("P-MORALE: " + player.getMorale());
+            Terminal.println("P-HYGIENE: " + player.getHygiene());
+            Terminal.println("\n");
+
             if (isCurrentLocation(locations, milesTraveled)) {
                 Terminal.println(getLastVisitedLandmark().getName());
             }
