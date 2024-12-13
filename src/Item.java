@@ -1,14 +1,14 @@
 public class Item {
-    private String name;
+    private ItemType type;
     private int quantity;
 
-    public Item(String name, int quantity) {
-        this.name = name;
+    public Item(ItemType type, int quantity) {
+        this.type = type;
         this.quantity = quantity;
     }
 
-    public String getName() {
-        return name;
+    public ItemType getType() {
+        return type;
     }
 
     public int getQuantity() {
@@ -32,4 +32,4 @@ public class Item {
         }
         return false;
     }
-}//i made this one return /true/false for error checking to se if it went thru
+}

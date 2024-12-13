@@ -3,52 +3,46 @@ import java.util.Random;
 
 public class Event {
 
-    public static String findWildFruit() {
-        return "You find some wild fruit.";
+    public static EventType findWildFruit() {
+        return EventType.WILD_FRUIT;
     }
 
-    public static String personHasBroken(String name) {
-        String limb = new Random().nextBoolean() ? "arm" : "leg";
-        return name + " has a broken " + limb + ".";
+    public static EventType wagonBroken() {
+        return EventType.WAGON_BROKEN;
     }
 
-    public static String personHasDisease(String name) {
-        String[] diseases = {"cholera", "measles", "dysentery", "typhoid fever", "influenza"};
-        String disease = diseases[new Random().nextInt(diseases.length)];
-        return name + " has " + disease + ".";
+    public static EventType wagonFire() {
+        return EventType.WAGON_FIRE;
     }
 
-    public static String personHasDied(String name) {
-        return name + " has died.";
+    public static EventType wagonRobbed() {
+        return EventType.WAGON_ROBBED;
     }
 
-    public static String wagonBroken() {
-        String[] parts = {"wheel", "tongue", "axel"};
-        String part = parts[new Random().nextInt(parts.length)];
-        return "The wagon " + part + " is broken.";
+    public static EventType oxenInjuredOrDead() {
+        return EventType.OXEN_INJURED_OR_DEAD;
     }
 
-    public static String oxenInjuredOrDead() {
-        String[] states = {"injured", "dead"};
-        String state = states[new Random().nextInt(states.length)];
-        return "The oxen are " + state + ".";
+    public static EventType personHasDisease(String name) {
+        return EventType.PERSON_HAS_DISEASE;
     }
 
-    public static String wagonFire() {
-        return "The wagon lights on fire.";
+    public static EventType personHasBroken(String name) {
+        return EventType.PERSON_HAS_BROKEN;
     }
 
-    public static String wagonRobbed() {
-        return "The wagon gets robbed.";
+    public static EventType personHasDied(String name) {
+        return EventType.PERSON_HAS_DIED;
     }
 
-    public static String findAbandonedWagon() {
-        return "You find an abandoned wagon.";
+    public static EventType findAbandonedWagon() {
+        return EventType.FIND_ABANDONED_WAGON;
     }
 
-    public static String getRandomEvent(List<Alive> characters, String weather, int foodRations, int pace, String topography, int grassAmount, int waterAmount, String waterQuality) {
+    public static EventType getRandomEvent(Player player, List<Companion> companions, List<Oxen> oxen, String weather, String date,
+                                            int foodRations, int pace, int grassAmount, int waterAmount, int waterQuality) {
         Random rand = new Random();
-
+        
         if (grassAmount > 0 && waterAmount > 0 && rand.nextInt(100) < 20) {
             return findWildFruit();
         }
@@ -57,7 +51,7 @@ public class Event {
             return wagonBroken();
         }
 
-        if ((weather.equals("arid") || weather.equals("hot")) && rand.nextInt(100) < 10) {
+        if ((weather.equals("Hot") || weather.equals("Arid")) && rand.nextInt(100) < 10) {
             return wagonFire();
         }
 
@@ -73,21 +67,42 @@ public class Event {
             return oxenInjuredOrDead();
         }
 
-        for (Alive c : characters) {
-            if ((foodRations < 3 || waterQuality.equals("bad")) && rand.nextInt(100) < 20) {
-                return personHasDisease(c.getName());
+        if ((foodRations > 2 || waterQuality < 40) && rand.nextInt(100) < 20) {
+            if (rand.nextBoolean()) {
+                for (Companion c : companions) {
+                    if (rand.nextInt(100) < Math.min(20 + c.getMorale() / 5, 60)) {
+                        return personHasDisease(c.getName());
+                    }
+                }
+            }
+            if (rand.nextInt(100) < Math.min(20 + player.getMorale() / 5, 60)) {
+                return personHasDisease(player.getName());
             }
         }
 
-        for (Alive c : characters) {
-            if (rand.nextInt(100) < Math.min(20 + pace * 2, 60)) {
-                return personHasBroken(c.getName());
+        if (rand.nextInt(100) < Math.min(20 + pace * 2, 60)) {
+            if (rand.nextBoolean()) {
+                for (Companion c : companions) {
+                    if (rand.nextInt(100) < Math.min(20 + c.getHygiene() / 5, 60)) {
+                        return personHasBroken(c.getName());
+                    }
+                }
+            }
+            if (rand.nextInt(100) < Math.min(20 + player.getHygiene() / 5, 60)) {
+                return personHasBroken(player.getName());
             }
         }
 
-        for (Alive c : characters) {
-            if (rand.nextInt(100) < 5 && c.getHealth() < 20) {
-                return personHasDied(c.getName());
+        if (rand.nextInt(100) < 5) {
+            if (rand.nextBoolean()) {
+                for (Companion c : companions) {
+                    if (c.getHealth() < 1 && rand.nextInt(100) < 30) {
+                        return personHasDied(c.getName());
+                    }
+                }
+            }
+            if (player.getHealth() < 1 && rand.nextInt(100) < 30) {
+                return personHasDied(player.getName());
             }
         }
 
@@ -95,6 +110,6 @@ public class Event {
             return findAbandonedWagon();
         }
 
-        return "Nothing significant happens.";
+        return EventType.NOTHING_HAPPENS;
     }
 }

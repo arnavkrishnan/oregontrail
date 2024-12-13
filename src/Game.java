@@ -1,5 +1,6 @@
 import java.util.*;
 import java.lang.*;
+import java.io.*;
 
 public class Game {
     private Player player;
@@ -47,9 +48,176 @@ public class Game {
     }
 
     public void continueOnTrail() {
-        milesTraveled += pace * 5;
+        milesTraveled += pace * 10;
         daysTraveled++;
-        if (player.subtractItem(new Item("Food", rations*companions.size()*3))){
+        doChanges();
+        calculateWeather();
+        getEvent();
+    }
+
+    public void getEvent(){
+        EventType event = Event.getRandomEvent(player, companions, oxen, weatherEffectMap.get(weather), Date.calculate(daysTraveled, month, "date"), rations, pace, 100, 100, 100);
+        Random rand = new Random();
+        switch (event) {
+            case WILD_FRUIT:
+                Terminal.println("You find some wild fruit.");
+                player.addItem(new Item(ItemType.FOOD, player.getProfession().equals(Profession.FARMER) ? 40 : 20));
+                Terminal.println(player.getProfession().equals(Profession.FARMER) ? "+40 food" : "+20 food");
+                break;
+    
+            case WAGON_BROKEN:
+                int part = rand.nextInt(3);
+                int chance = player.getProfession().equals(Profession.CARPENTER) ? rand.nextInt(5) : rand.nextInt(7);
+                if (part == 0){
+                    Terminal.println("The wagon wheel is broken.");
+                    if (chance < 3){
+                        Terminal.println("You were able to repair the wheel.");
+                    } else {
+                        Terminal.println("You were unable to repair the wheel. You must replace the broken wheel.");
+                        if (player.subtractItem(new Item(ItemType.WHEELS, 1))){
+                            Terminal.println("You successfully replaced the wheel.");
+                        } else {
+                            Terminal.println("You do not have any wheels to replace the part.");
+                            Terminal.println("Unable to move, you are stranded in " + getLastVisitedLandmark().getName());
+                            endGame();
+                        }
+                    }
+                } else if (part == 1){
+                    Terminal.println("The wagon axle is broken.");
+                    if (chance < 3){
+                        Terminal.println("You were able to repair the axle.");
+                    } else {
+                        Terminal.println("You were unable to repair the axle. You must replace it.");
+                        if (player.subtractItem(new Item(ItemType.AXELS, 1))){
+                            Terminal.println("You successfully replaced the axle.");
+                        } else {
+                            Terminal.println("You do not have any axles to replace the part.");
+                            Terminal.println("Unable to move, you are stranded in " + getLastVisitedLandmark().getName());
+                            endGame();
+                        }
+                    }
+                } else {
+                    Terminal.println("The wagon tongue is broken.");
+                    if (chance < 3){
+                        Terminal.println("You were able to repair the tongue.");
+                    } else {
+                        Terminal.println("You were unable to repair the tongue. You must replace it.");
+                        if (player.subtractItem(new Item(ItemType.TONGUES, 1))){
+                            Terminal.println("You successfully replaced the tongue.");
+                        } else {
+                            Terminal.println("You do not have any tongues to replace the part.");
+                            Terminal.println("Unable to move, you are stranded in " + getLastVisitedLandmark().getName());
+                            endGame();
+                        }
+                    }
+                }
+                break;
+    
+            case WAGON_FIRE:
+                Terminal.println("The wagon lights on fire!");
+                player.subtractItem(new Item(ItemType.FOOD, (int)0.6*player.getInventory().getItemQuantity(ItemType.FOOD)));
+                Terminal.print("You lost 60% of your food.");
+                player.subtractItem(new Item(ItemType.CLOTHES, (int)0.5*player.getInventory().getItemQuantity(ItemType.CLOTHES)));
+                Terminal.println("You lost 50% of your clothes.");
+                player.subtractItem(new Item(ItemType.BULLETS, (int)0.9*player.getInventory().getItemQuantity(ItemType.BULLETS)));
+                Terminal.print("You lost 90% of your food.");
+                player.subtractItem(new Item(ItemType.WHEELS, player.getInventory().getItemQuantity(ItemType.WHEELS)));
+                player.subtractItem(new Item(ItemType.AXELS, player.getInventory().getItemQuantity(ItemType.AXELS)));
+                player.subtractItem(new Item(ItemType.TONGUES, player.getInventory().getItemQuantity(ItemType.TONGUES)));
+                Terminal.println("You lost any spare parts.");
+                break;
+    
+            case WAGON_ROBBED:
+                Terminal.println("The wagon gets robbed!");
+                int lootChance = rand.nextInt(100);
+                if (lootChance < 30){
+                    Terminal.println("The robbers steal some of your food and supplies.");
+                    if (player.subtractItem(new Item(ItemType.FOOD, 20))){
+                        Terminal.println("They took 20 food.");
+                    }
+                    if (player.subtractItem(new Item(ItemType.CLOTHES, 5))){
+                        Terminal.println("They took some of your clothing.");
+                    }
+                } else {
+                    Terminal.println("Luckily, the robbers don't manage to steal anything valuable.");
+                }
+                break;
+    
+            case OXEN_INJURED_OR_DEAD:
+                Terminal.println("The oxen are injured or dead.");
+                // Dealing with oxen injuries or death
+                int oxenChance = rand.nextInt(3);
+                if (oxenChance == 0){
+                    Terminal.println("One of your oxen has broken its leg. You must rest to heal it.");
+                    stopToRest();
+                } else if (oxenChance == 1){
+                    Terminal.println("You lost an ox! You must continue with fewer oxen, which will slow your travel.");
+                    oxen--; // Decrease ox count
+                } else {
+                    Terminal.println("You have lost all your oxen. Without oxen, you cannot move.");
+                    Terminal.println("You are stranded and unable to continue your journey.");
+                    endGame();
+                }
+                break;
+    
+            case PERSON_HAS_DISEASE:
+                Terminal.println("A companion has fallen ill.");
+                // Handle the disease event
+                Companion illCompanion = companions.get(rand.nextInt(companions.size()));
+                Terminal.println(illCompanion.getName() + " has contracted a disease.");
+                int cureChance = rand.nextInt(100);
+                if (cureChance < 50){
+                    Terminal.println(illCompanion.getName() + " recovers after rest and medicine.");
+                } else {
+                    Terminal.println(illCompanion.getName() + " is too weak to recover. You must try again or risk their death.");
+                }
+                break;
+    
+            case PERSON_HAS_BROKEN:
+                Terminal.println("A companion has broken a limb.");
+                // Handle the injury event
+                Companion injuredCompanion = companions.get(rand.nextInt(companions.size()));
+                Terminal.println(injuredCompanion.getName() + " has broken a limb and will need to rest.");
+                if (player.subtractItem(new Item(ItemType.BANDAGES, 1))){
+                    Terminal.println("You use a bandage to help treat their injury.");
+                    injuredCompanion.addHealth(10); // Small health boost for recovery
+                } else {
+                    Terminal.println("You have no bandages, and the injury worsens. The companion must rest for several days.");
+                    stopToRest();
+                }
+                break;
+    
+            case PERSON_HAS_DIED:
+                Terminal.println("A companion has died.");
+                // Handle the death of a companion
+                Companion deceasedCompanion = companions.remove(rand.nextInt(companions.size()));
+                Terminal.println(deceasedCompanion.getName() + " has died due to illness or injury.");
+                break;
+    
+            case FIND_ABANDONED_WAGON:
+                Terminal.println("You find an abandoned wagon.");
+                // Handle finding supplies in an abandoned wagon
+                int findChance = rand.nextInt(100);
+                if (findChance < 50){
+                    Terminal.println("You find some useful supplies, including food and tools.");
+                    player.addItem(new Item(ItemType.FOOD, 30));
+                    player.addItem(new Item(ItemType.TOOLS, 1));
+                } else {
+                    Terminal.println("Unfortunately, the wagon has been looted, and there is nothing useful.");
+                }
+                break;
+    
+            case NOTHING_HAPPENS:
+                Terminal.println("Nothing significant happens.");
+                break;
+    
+            default:
+                Terminal.println("Congrats - you found an error. Go buy a lotto ticket, or something.");
+        }
+    }
+    
+    public void doChanges(){
+        if (player.subtractItem(new Item(ItemType.FOOD, rations*companions.size()*3))){
             if (rations==1){
                 ;
             } else if (rations == 2){
@@ -90,7 +258,6 @@ public class Game {
                 c.setStamina(c.getStamina()-18);
             }
         } 
-        calculateWeather();
     }
 
     public void calculateWeather() {
@@ -160,14 +327,12 @@ public class Game {
     }
 
     public void checkSupplies() {
-        TextIO.getln();
         player.inventoryToString();
-        TextIO.getln();
+        Terminal.getln();
         Terminal.clean();
     }
 
     public void lookAtMap() {
-        TextIO.getln();
         System.out.println("Map of the Oregon Trail:");
         System.out.println("----------------------------------------");
 
@@ -207,7 +372,7 @@ public class Game {
         System.out.println("L - Landmark");
         System.out.println("R - River");
         System.out.println("----------------------------------------");
-        TextIO.getln();
+        Terminal.getln();
     }
 
     public void stopToRest() {
@@ -220,9 +385,8 @@ public class Game {
 
     public void talkToLocals() {
         Terminal.clean();
-        TextIO.getln();
         Terminal.print("A local tells you: " + getLastVisitedLandmark().getDescription());
-        TextIO.getln();
+        Terminal.getln();
     }
 
     public void hunt(){
@@ -238,11 +402,9 @@ public class Game {
     }
 
     private void buySupplies() {
-        TextIO.getln();
-
         Terminal.println("You have $" + String.valueOf(player.getMoney()) + "0 to spend. You can get what you need at Matt's general store.");
 
-        TextIO.getln();
+        Terminal.getln();
         Terminal.clean();
 
         Terminal.println("Hello, I'm Matt! So you're going to Oregon! I can fix you up with what you need:");
@@ -252,39 +414,39 @@ public class Game {
         Terminal.println("- ammunition for your rifles");
         Terminal.println("- spare parts for your wagon");
 
-        TextIO.getln();
+        Terminal.getln();
         Terminal.clean();
 
         int yoke = MattsGeneralStore.buyOxen(player);
         player.makeCharge(40*yoke);
-        player.addItem(new Item("Oxen", yoke*2));
+        player.addItem(new Item(ItemType.OXEN, yoke*2));
         oxen.add(new Oxen());
 
         Terminal.clean();
 
         int food = MattsGeneralStore.buyFood(player);
         player.makeCharge(0.20*food);
-        player.addItem(new Item("Food", food));
+        player.addItem(new Item(ItemType.OXEN, food));
 
         Terminal.clean();
 
         int clothes = MattsGeneralStore.buyClothes(player);
         player.makeCharge(10*clothes);
-        player.addItem(new Item("Clothes", clothes));
+        player.addItem(new Item(ItemType.CLOTHES, clothes));
 
         Terminal.clean();
 
         int ammo = MattsGeneralStore.buyAmmo(player);
         player.makeCharge(2*ammo);
-        player.addItem(new Item("Bullets", 20*ammo));
+        player.addItem(new Item(ItemType.BULLETS, 20*ammo));
 
         Terminal.clean();
 
         int[] parts = MattsGeneralStore.buyParts(player);
         player.makeCharge(10*(parts[0] + parts[1] + parts[2]));
-        player.addItem(new Item("Wheels", parts[0]));
-        player.addItem(new Item("Axels", parts[1]));
-        player.addItem(new Item("Tongues", parts[2]));
+        player.addItem(new Item(ItemType.WHEELS, parts[0]));
+        player.addItem(new Item(ItemType.AXELS, parts[1]));
+        player.addItem(new Item(ItemType.TONGUES, parts[2]));
 
         Terminal.clean();
     }
@@ -325,22 +487,27 @@ public class Game {
     private void createPlayer() {
         Terminal.print("Choose your profession: (1) Banker from Boston (2) Carpenter from Ohio (3) Farmer from Illinois: ");
         int professionChoice = TextIO.getlnInt();
-        String profession = "";
+        Profession profession;
         int startingMoney = 0;
 
         switch (professionChoice) {
             case 1: 
-                profession = "Banker from Boston"; 
+                profession = Profession.BANKER;
                 startingMoney = 1600;
                 break;
             case 2: 
-                profession = "Carpenter from Ohio"; 
+                profession = Profession.CARPENTER;
                 startingMoney = 800;
                 break;
             case 3: 
-                profession = "Farmer from Illinois"; 
+                profession = Profession.FARMER;
                 startingMoney = 400;
                 break;
+            default:
+                Terminal.print("Invalid input. The developer has not yet enabled error-checking on this section of the code. You will be defaulted to a Carpenter.");
+                profession = Profession.CARPENTER;
+                startingMoney = 800;
+                Terminal.getln();
         }
 
         Terminal.print("Enter your name: ");
@@ -400,6 +567,7 @@ public class Game {
     }
 
     public void start() {
+        endGame();
         int choice;
         while (gameRunning) {
             Terminal.clean();
@@ -408,6 +576,8 @@ public class Game {
             Terminal.println("P-STAMINA: " + player.getStamina());
             Terminal.println("P-MORALE: " + player.getMorale());
             Terminal.println("P-HYGIENE: " + player.getHygiene());
+            Terminal.println("MILES: " + milesTraveled);
+            Terminal.println("DAYS: " + daysTraveled);
             Terminal.println("\n");
 
             if (isCurrentLocation(locations, milesTraveled)) {
@@ -555,7 +725,21 @@ public class Game {
             }
         }
 
-    return lastVisited;
-}
+        return lastVisited;
+    }
+
+    public void endGame() {
+        Terminal.clean();
+        System.out.println("***********************************************");
+        System.out.println("*                 GAME OVER                 *");
+        System.out.println("***********************************************");
+        System.out.println("\n" + player.getName() + ", your journey has come to an end.");
+        System.out.println("\nTotal Days Traveled: " + daysTraveled);
+        System.out.println("Total Miles Traveled: " + milesTraveled + " miles");
+        System.out.println("\nThank you for playing the Oregon Trail!");
+        System.out.println("\nPress any key to exit...");
+        Terminal.getln();
+        System.exit(0);    
+    }
 
 }

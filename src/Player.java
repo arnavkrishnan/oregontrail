@@ -1,9 +1,9 @@
 public class Player extends Alive {
-    private String profession;
+    private Profession profession;
     private double money;
     private Inventory inventory;
 
-    public Player(String name, int money, String profession) {
+    public Player(String name, int money, Profession profession) {
         super(name);
         this.profession = profession;
         this.money = money;
@@ -18,11 +18,11 @@ public class Player extends Alive {
     public void rest() {
     }
 
-    public String getProfession() {
+    public Profession getProfession() {
         return profession;
     }
 
-    public void setProfession(String profession) {
+    public void setProfession(Profession profession) {
         this.profession = profession;
     }
 
@@ -47,7 +47,7 @@ public class Player extends Alive {
     }
 
     public boolean subtractItem(Item item){
-        if (this.inventory.subtractItemQuantity(item.getName(), item.getQuantity())){
+        if (this.inventory.subtractItemQuantity(item.getType(), item.getQuantity())){
             return true;
         } else {
             return false;

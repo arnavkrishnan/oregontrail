@@ -1,6 +1,15 @@
 import java.util.*;
+import java.io.*;
 
 public class Terminal {
+
+    public static void getln(){
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void sleep(int millis){
         try {

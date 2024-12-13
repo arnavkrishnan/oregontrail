@@ -1,35 +1,35 @@
 import java.util.*;
 
 public class Inventory {
-    private Map<String, Item> items;
+    private Map<ItemType, Item> items;
 
     public Inventory() {
         this.items = new HashMap<>();
     }
 
     public void addItem(Item item) {
-        if (items.containsKey(item.getName())) {
-            Item existingItem = items.get(item.getName());
+        if (items.containsKey(item.getType())) {
+            Item existingItem = items.get(item.getType());
             existingItem.addQuantity(item.getQuantity());
         } else {
-            items.put(item.getName(), item);
+            items.put(item.getType(), item);
         }
     }
 
-    public void removeItem(String itemName) {
-        items.remove(itemName);
+    public void removeItem(ItemType itemType) {
+        items.remove(itemType);
     }
 
-    public boolean subtractItemQuantity(String itemName, int quantity) {
-        Item item = items.get(itemName);
+    public boolean subtractItemQuantity(ItemType itemType, int quantity) {
+        Item item = items.get(itemType);
         if (item != null) {
             return item.subtractQuantity(quantity);
         }
         return false;
-    } // same as Item class  I made thiss return bool so that I can see if it actually went thru for error checking
+    }
 
-    public int getItemQuantity(String itemName) {
-        Item item = items.get(itemName);
+    public int getItemQuantity(ItemType itemType) {
+        Item item = items.get(itemType);
         return (item != null) ? item.getQuantity() : 0;
     }
 
@@ -37,8 +37,8 @@ public class Inventory {
         return new ArrayList<>(items.values());
     }
 
-    public boolean containsItem(String itemName) {
-        return items.containsKey(itemName);
+    public boolean containsItem(ItemType itemType) {
+        return items.containsKey(itemType);
     }
 
     public void printInventory() {
@@ -47,7 +47,7 @@ public class Inventory {
         } else {
             System.out.println("Inventory:");
             for (Item item : items.values()) {
-                System.out.println("Item: " + item.getName() + ", Quantity: " + item.getQuantity());
+                System.out.println("Item: " + item.getType() + ", Quantity: " + item.getQuantity());
             }
         }
     }
