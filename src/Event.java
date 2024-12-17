@@ -39,7 +39,7 @@ public class Event {
         return EventType.FIND_ABANDONED_WAGON;
     }
 
-    public static EventType getRandomEvent(Player player, List<Companion> companions, List<Oxen> oxen, String weather, String date,
+    public static EventType getRandomEvent(Player player, List<Companion> companions, List<Oxen> oxen, WeatherType weather, String date,
                                             int foodRations, int pace, int grassAmount, int waterAmount, int waterQuality) {
         Random rand = new Random();
         
@@ -51,7 +51,7 @@ public class Event {
             return wagonBroken();
         }
 
-        if ((weather.equals("Hot") || weather.equals("Arid")) && rand.nextInt(100) < 10) {
+        if (weather == WeatherType.HOT && rand.nextInt(100) < 10) {
             return wagonFire();
         }
 

@@ -14,10 +14,10 @@ public class Game {
     private int daysTraveled;
     private int month;
     private int weather;
-    private HashMap<Integer, String> paceEffectMap;
-    private HashMap<Integer, String> healthEffectMap;
-    private HashMap<Integer, String> rationEffectMap;
-    private HashMap<Integer, String> weatherEffectMap;
+    private HashMap<Integer, PaceType> paceEffectMap;
+    private HashMap<Integer, HealthType> healthEffectMap;
+    private HashMap<Integer, RationType> rationEffectMap;
+    private HashMap<Integer, WeatherType> weatherEffectMap;
 
     public Game() {
         this.companions = new ArrayList<>();
@@ -70,6 +70,7 @@ public class Game {
             doChanges();
             calculateWeather();
             getEvent();
+            Terminal.getln();
         }
     }
 
@@ -498,35 +499,35 @@ public class Game {
 
     private void setupPaceEffects() {
         paceEffectMap = new HashMap<>();
-        paceEffectMap.put(1, "Steady");
-        paceEffectMap.put(2, "Strenuous");
-        paceEffectMap.put(3, "Grueling");
+        paceEffectMap.put(1, PaceType.STEADY);
+        paceEffectMap.put(2, PaceType.STRENUOUS);
+        paceEffectMap.put(3, PaceType.GRUELING);
     }
 
     private void setupHealthEffects() {
         healthEffectMap = new HashMap<>();
-        healthEffectMap.put(3, "Good");
-        healthEffectMap.put(2, "Fair");
-        healthEffectMap.put(1, "Poor");
+        healthEffectMap.put(3, HealthType.GOOD);
+        healthEffectMap.put(2, HealthType.FAIR);
+        healthEffectMap.put(1, HealthType.POOR);
     }
 
     private void setupRationEffects() {
         rationEffectMap = new HashMap<>();
-        rationEffectMap.put(1, "Filling");
-        rationEffectMap.put(2, "Meager");
-        rationEffectMap.put(3, "Bare-bones");
+        rationEffectMap.put(1, RationType.FILLING);
+        rationEffectMap.put(2, RationType.MEAGER);
+        rationEffectMap.put(3, RationType.BARE_BONES);
     }
 
     private void setupWeatherEffects() {
         weatherEffectMap = new HashMap<>();
-        weatherEffectMap.put(1, "Blizzard");
-        weatherEffectMap.put(2, "Snowing");
-        weatherEffectMap.put(3, "Raining");
-        weatherEffectMap.put(4, "Cold");
-        weatherEffectMap.put(5, "Moderate");
-        weatherEffectMap.put(6, "Warm");
-        weatherEffectMap.put(7, "Hot");
-        weatherEffectMap.put(8, "Thunderstorm");
+        weatherEffectMap.put(1, WeatherType.BLIZZARD);
+        weatherEffectMap.put(2, WeatherType.SNOWING);
+        weatherEffectMap.put(3, WeatherType.RAINING);
+        weatherEffectMap.put(4, WeatherType.COLD);
+        weatherEffectMap.put(5, WeatherType.MODERATE);
+        weatherEffectMap.put(6, WeatherType.WARM);
+        weatherEffectMap.put(7, WeatherType.HOT);
+        weatherEffectMap.put(8, WeatherType.THUNDERSTORM);
     }
 
     private void createPlayer() {
