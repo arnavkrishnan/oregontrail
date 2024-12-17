@@ -48,12 +48,50 @@ public class Game {
     }
 
     public void continueOnTrail() {
-        milesTraveled += pace * 10;
+    // very advanced calculation
+    int dailyMiles = calculateDailyTravel();
+        milesTraveled += dailyMiles;
         daysTraveled++;
-        doChanges();
-        calculateWeather();
-        getEvent();
+
+        // must stop at landmark. look around maybe. idk
+        Landmark nextLandmark = getNextLandmark();
+        if (milesTraveled > nextLandmark.getDistanceFromPrevious()) {
+            milesTraveled = nextLandmark.getDistanceFromPrevious();
+        }
+
+        // river?
+        if (isCurrentLocation(locations, milesTraveled)) {
+            if (getLastVisitedLandmark() instanceof River){
+                River river = (River) nextLandmark;
+                handleRiverCrossing(river);
+            }
+        } else {
+            // normal
+            doChanges();
+            calculateWeather();
+            getEvent();
+        }
     }
+
+    private int calculateDailyTravel() {
+        // - stamina and morale improve performance
+        // - no. oxen can affect the speed (more oxen = faster)
+        // - pace determines how quickly the group moves (duh)
+        double staminaFactor = (double) player.getStamina() / 100;
+        double moraleFactor = (double) player.getMorale() / 100;
+        int oxenFactor = oxen.size(); // Number of oxen (cuz array list)
+
+        staminaFactor++;
+        moraleFactor++;
+
+        // Calculate daily miles based on factors
+        int dailyMiles = (int) (staminaFactor * moraleFactor * oxenFactor * pace)*2;
+        return Math.max(1, dailyMiles);  // gotta at least move
+    
+    }
+
+
+
 
     public void getEvent(){
         EventType event = Event.getRandomEvent(player, companions, oxen, weatherEffectMap.get(weather), Date.calculate(daysTraveled, month, "date"), rations, pace, 100, 100, 100);
@@ -144,20 +182,18 @@ public class Game {
                 break;
     
             case OXEN_INJURED_OR_DEAD:
-                Terminal.println("The oxen are injured or dead.");
-                // Dealing with oxen injuries or death
-                int oxenChance = rand.nextInt(3);
-                if (oxenChance == 0){
-                    Terminal.println("One of your oxen has broken its leg. You must rest to heal it.");
-                    stopToRest();
-                } else if (oxenChance == 1){
-                    Terminal.println("You lost an ox! You must continue with fewer oxen, which will slow your travel.");
-                    oxen--; // Decrease ox count
-                } else {
-                    Terminal.println("You have lost all your oxen. Without oxen, you cannot move.");
-                    Terminal.println("You are stranded and unable to continue your journey.");
-                    endGame();
-                }
+                // int oxenChance = rand.nextInt(3);
+                // if (oxenChance == 0){
+                //     Terminal.println("One of your oxen has broken its leg. You must rest to heal it.");
+                //     stopToRest();
+                // } else if (oxenChance == 1){
+                //     Terminal.println("You lost an ox! You must continue with fewer oxen, which will slow your travel.");
+                //     Player.subtractItem(new Item())
+                // } else {
+                //     Terminal.println("You have lost all your oxen. Without oxen, you cannot move.");
+                //     Terminal.println("You are stranded and unable to continue your journey.");
+                //     endGame();
+                // }
                 break;
     
             case PERSON_HAS_DISEASE:
@@ -174,17 +210,17 @@ public class Game {
                 break;
     
             case PERSON_HAS_BROKEN:
-                Terminal.println("A companion has broken a limb.");
-                // Handle the injury event
-                Companion injuredCompanion = companions.get(rand.nextInt(companions.size()));
-                Terminal.println(injuredCompanion.getName() + " has broken a limb and will need to rest.");
-                if (player.subtractItem(new Item(ItemType.BANDAGES, 1))){
-                    Terminal.println("You use a bandage to help treat their injury.");
-                    injuredCompanion.addHealth(10); // Small health boost for recovery
-                } else {
-                    Terminal.println("You have no bandages, and the injury worsens. The companion must rest for several days.");
-                    stopToRest();
-                }
+                // Terminal.println("A companion has broken a limb.");
+                // // Handle the injury event
+                // Companion injuredCompanion = companions.get(rand.nextInt(companions.size()));
+                // Terminal.println(injuredCompanion.getName() + " has broken a limb and will need to rest.");
+                // if (player.subtractItem(new Item(ItemType.BANDAGES, 1))){
+                //     Terminal.println("You use a bandage to help treat their injury.");
+                //     injuredCompanion.addHealth(10); // Small health boost for recovery
+                // } else {
+                //     Terminal.println("You have no bandages, and the injury worsens. The companion must rest for several days.");
+                //     stopToRest();
+                // }
                 break;
     
             case PERSON_HAS_DIED:
@@ -195,16 +231,16 @@ public class Game {
                 break;
     
             case FIND_ABANDONED_WAGON:
-                Terminal.println("You find an abandoned wagon.");
-                // Handle finding supplies in an abandoned wagon
-                int findChance = rand.nextInt(100);
-                if (findChance < 50){
-                    Terminal.println("You find some useful supplies, including food and tools.");
-                    player.addItem(new Item(ItemType.FOOD, 30));
-                    player.addItem(new Item(ItemType.TOOLS, 1));
-                } else {
-                    Terminal.println("Unfortunately, the wagon has been looted, and there is nothing useful.");
-                }
+                // Terminal.println("You find an abandoned wagon.");
+                // // Handle finding supplies in an abandoned wagon
+                // int findChance = rand.nextInt(100);
+                // if (findChance < 50){
+                //     Terminal.println("You find some useful supplies, including food and tools.");
+                //     player.addItem(new Item(ItemType.FOOD, 30));
+                //     player.addItem(new Item(ItemType.TOOLS, 1));
+                // } else {
+                //     Terminal.println("Unfortunately, the wagon has been looted, and there is nothing useful.");
+                // }
                 break;
     
             case NOTHING_HAPPENS:
@@ -217,35 +253,36 @@ public class Game {
     }
     
     public void doChanges(){
-        if (player.subtractItem(new Item(ItemType.FOOD, rations*companions.size()*3))){
-            if (rations==1){
-                ;
-            } else if (rations == 2){
-                player.setMorale(player.getMorale()-2);
-                player.setHealth(player.getHealth()-0.052);
-                player.setHygiene(player.getHygiene()-1);
-                player.setStamina(player.getStamina()-3);
+        player.subtractItem(new Item(ItemType.FOOD, rations*companions.size()*3));
+        if (rations==1){
+            ;
+        } else if (rations == 2){
+            player.setMorale(player.getMorale()-2);
+            player.setHealth(player.getHealth()-0.052);
+            player.setHygiene(player.getHygiene()-1);
+            player.setStamina(player.getStamina()-3);
 
-                for (Companion c : companions){
-                    c.setMorale(c.getMorale()-2);
-                    c.setHealth(c.getHealth()-0.052);
-                    c.setHygiene(c.getHygiene()-1);
-                    c.setStamina(c.getStamina()-3);
-                }
-            } else {
-                player.setMorale(player.getMorale()-5);
-                player.setHealth(player.getHealth()-0.13);
-                player.setHygiene(player.getHygiene()-3);
-                player.setStamina(player.getStamina()-7);
-
-                for (Companion c : companions){
-                    c.setMorale(c.getMorale()-5);
-                    c.setHealth(c.getHealth()-0.11);
-                    c.setHygiene(c.getHygiene()-3);
-                    c.setStamina(c.getStamina()-7);
-                }
+            for (Companion c : companions){
+                c.setMorale(c.getMorale()-2);
+                c.setHealth(c.getHealth()-0.052);
+                c.setHygiene(c.getHygiene()-1);
+                c.setStamina(c.getStamina()-3);
             }
         } else {
+            player.setMorale(player.getMorale()-5);
+            player.setHealth(player.getHealth()-0.13);
+            player.setHygiene(player.getHygiene()-3);
+            player.setStamina(player.getStamina()-7);
+
+            for (Companion c : companions){
+                c.setMorale(c.getMorale()-5);
+                c.setHealth(c.getHealth()-0.11);
+                c.setHygiene(c.getHygiene()-3);
+                c.setStamina(c.getStamina()-7);
+            }
+        }
+        
+        if(player.getInventory().getItemQuantity(ItemType.FOOD)<1){
             player.setMorale(player.getMorale()-12);
             player.setHealth(player.getHealth()-0.27);
             player.setHygiene(player.getHygiene()-7);
@@ -257,7 +294,7 @@ public class Game {
                 c.setHygiene(c.getHygiene()-7);
                 c.setStamina(c.getStamina()-18);
             }
-        } 
+        }
     }
 
     public void calculateWeather() {
@@ -397,9 +434,17 @@ public class Game {
     }
 
     private void chooseDepartureMonth() {
+    int month;
+    do {
         Terminal.print("When would you like to leave? (1) March (2) April (3) May (4) June (5) July: ");
-        this.month = TextIO.getInt() + 1;
-    }
+        month = TextIO.getInt();
+        if (month < 1 || month > 5) {
+            Terminal.print("Invalid choice. Please enter a number between 1 and 5.\n");
+        }
+    } while (month < 1 || month > 5);
+    this.month = month;
+}
+
 
     private void buySupplies() {
         Terminal.println("You have $" + String.valueOf(player.getMoney()) + "0 to spend. You can get what you need at Matt's general store.");
@@ -540,13 +585,14 @@ public class Game {
         locations.add(new Fort("Fort Walla Walla", "A fort on the Columbia River, providing a break before reaching the Cascades.", 1250));
         locations.add(new Landmark("Oregon City", "The final destination for travelers on the Oregon Trail, where many pioneers hoped to settle in the fertile Willamette Valley.", 1350));
 
-        locations.add(new River("Kansas River", "A dangerous river crossing in the Kansas Territory.", 100));
-        locations.add(new River("Platte River", "A major river that many pioneers use to guide their way west.", 150));
-        locations.add(new River("North Platte River", "A branch of the Platte River that travelers followed.", 250));
-        locations.add(new River("Sweetwater River", "A river that flows through the Rocky Mountains and was often crossed by wagon trains.", 350));
-        locations.add(new River("Green River", "A large river, sometimes difficult to ford, especially during high water.", 500));
-        locations.add(new River("Snake River", "A challenging river with rocky terrain and swift currents.", 750));
-        locations.add(new River("Columbia River", "A dangerous river at the end of the trail, with rapids that test even the most skilled navigators.", 1300));
+        locations.add(new River("Kansas River", "A dangerous river crossing in the Kansas Territory.", 20, 30, 3));
+        locations.add(new River("Platte River", "A major river that many pioneers use to guide their way west.", 150, 50, 4));
+        locations.add(new River("North Platte River", "A branch of the Platte River that travelers followed.", 250, 60, 5));
+        locations.add(new River("Sweetwater River", "A river that flows through the Rocky Mountains and was often crossed by wagon trains.", 350, 80, 6));
+        locations.add(new River("Green River", "A large river, sometimes difficult to ford, especially during high water.", 500, 120, 8));
+        locations.add(new River("Snake River", "A challenging river with rocky terrain and swift currents.", 750, 150, 10));
+        locations.add(new River("Columbia River", "A dangerous river at the end of the trail, with rapids that test even the most skilled navigators.", 1300, 200, 12));
+
 
         Collections.sort(locations, new Comparator<Landmark>() {
             public int compare(Landmark l1, Landmark l2) {
@@ -567,7 +613,6 @@ public class Game {
     }
 
     public void start() {
-        endGame();
         int choice;
         while (gameRunning) {
             Terminal.clean();
@@ -726,6 +771,125 @@ public class Game {
         }
 
         return lastVisited;
+    }
+
+    private Landmark getNextLandmark() {
+        for (Landmark location : locations) {
+            if (location.getDistanceFromPrevious() > milesTraveled) {
+                return location;
+            }
+        }
+        return null;
+    }
+
+    private void handleRiverCrossing(River river) {
+        Terminal.println("You have reached the " + river.getName() + "!");
+        Terminal.println("It is " + river.getDepth() + " feet deep and " + river.getWidth() + " feet wide.");
+        
+        Terminal.println("You have three options to cross the river:");
+        Terminal.println("1. Ford the wagon");
+        Terminal.println("2. Caulk the wagon");
+        Terminal.println("3. Get a ferry");
+    
+        int choice = TextIO.getlnInt();
+    
+        // Handle the player's choice
+        Random rand = new Random();
+        switch (choice) {
+            case 1: // Ford the wagon
+                fordWagon(river, rand);
+                break;
+            case 2: // Caulk the wagon
+                caulkWagon(river, rand);
+                break;
+            case 3: // Get a ferry
+                getFerry(river);
+                break;
+            default:
+                Terminal.println("Invalid choice. Please try again.");
+                handleRiverCrossing(river); // invalid
+        }
+    }
+    
+    private void fordWagon(River river, Random rand) {
+        if (river.getDepth() < 4 && river.getWidth() < 200) {
+            Terminal.println("You successfully ford the wagon across the river!");
+        } else {
+            Terminal.println("The river is too deep and wide! There is a chance of damage.");
+            if (rand.nextInt(100) < 50) {
+                Terminal.println("Your wagon is damaged during the crossing!");
+                handleRiverDamage();
+            } else {
+                Terminal.println("You manage to cross without damage!");
+            }
+        }
+    }
+    
+    private void caulkWagon(River river, Random rand) {
+        if (river.getDepth() < 6 && river.getWidth() < 300) {
+            Terminal.println("You caulk the wagon and float it across the river.");
+            if (rand.nextInt(100) < 30) {
+                Terminal.println("Your wagon is damaged during the crossing!");
+                handleRiverDamage();
+            } else {
+                Terminal.println("The crossing is successful, and the wagon survives!");
+            }
+        } else {
+            Terminal.println("The river is too dangerous to caulk the wagon!");
+            handleRiverDamage();
+        }
+    }
+    
+    private void getFerry(River river) {
+        // Always successful, but costs money
+        int cost = 15; 
+        if (player.getMoney() >= cost) {
+            player.makeCharge(cost);
+            Terminal.println("You take a ferry across the river for $" + cost + ".");
+            Terminal.println("The crossing is safe and without damage!");
+        } else {
+            Terminal.println("You don't have enough money to afford the ferry.");
+            Terminal.println("You must try another way to cross the river.");
+            handleRiverCrossing(river);
+        }
+    }
+    
+    private void handleRiverDamage() {
+        // randomly damage the player's supplies and oxen
+        Random rand = new Random();
+        int foodLoss = rand.nextInt(20) + 10;
+        int clothingLoss = rand.nextInt(10) + 5;
+        int sparePartsLoss = rand.nextInt(2) + 1;
+    
+        // subtract items from the player's inventory
+        player.subtractItem(new Item(ItemType.FOOD, foodLoss));
+        player.subtractItem(new Item(ItemType.CLOTHES, clothingLoss));
+        player.subtractItem(new Item(ItemType.WHEELS, sparePartsLoss));
+        player.subtractItem(new Item(ItemType.AXELS, sparePartsLoss));
+        player.subtractItem(new Item(ItemType.TONGUES, sparePartsLoss));
+    
+        // randomly lose oxen and companions
+        if (rand.nextInt(100) < 30) {
+            loseOxen(rand);
+        }
+        if (rand.nextInt(100) < 20) {
+            loseCompanion(rand);
+        }
+    }
+    
+    private void loseOxen(Random rand) {
+        int oxenLost = rand.nextInt(2) + 1; // lose 1 - 2 oxen (remember that is maximum 1 yoke cuz u buy them in yoke)
+        for (int i = 0; i < oxenLost && !oxen.isEmpty(); i++) {
+            Oxen ox = oxen.remove(rand.nextInt(oxen.size()));
+            Terminal.println("You lost an ox due to the river crossing.");
+        }
+    }
+    
+    private void loseCompanion(Random rand) {
+        if (!companions.isEmpty()) {
+            Companion companion = companions.remove(rand.nextInt(companions.size()));
+            Terminal.println(companion.getName() + " has died during the river crossing.");
+        }
     }
 
     public void endGame() {
