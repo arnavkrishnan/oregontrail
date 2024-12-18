@@ -677,6 +677,9 @@ public class Game {
     public void start() {
         int choice;
         while (gameRunning) {
+            if (milesTraveled==1350){
+                Oregon();
+            }
             Terminal.clean();
             if (oxen.size() == 0){
                 Terminal.clean();
@@ -1036,5 +1039,26 @@ public class Game {
         Terminal.println("Your journey may have ended, but your story is part of the trail. Press any key to exit.");
         Terminal.getln();
         System.exit(0);
+    }
+
+    public void Oregon(){
+        Terminal.clean();
+        Terminal.println("Well, " + player.getName()  + ", you made it to Oregon City. Very few who attempt the Oregon Trail actually make it to Oregon.");
+        int score;
+        switch(player.getProfession()){
+            case Profession.BANKER:
+                score = 400;
+            case Profession.CARPENTER:
+                score = 800;
+            case Profession.FARMER:
+                score = 1600;
+            default:
+                score = 0;
+                Terminal.println("Error in score calculation");
+        }
+        score += oxen.size()*50;
+        score += companions.size()*100;
+        score += player.getMoney();
+        Terminal.println("Score: " + score);
     }
 }
