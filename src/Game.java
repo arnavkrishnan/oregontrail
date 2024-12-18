@@ -1,6 +1,7 @@
 import java.util.*;
 import java.lang.*;
 import java.io.*;
+import java.text.*;
 
 public class Game {
     private Player player;
@@ -45,6 +46,8 @@ public class Game {
         setupHealthEffects();
         setupRationEffects();
         setupWeatherEffects();
+
+        endGame();
     }
 
     public void continueOnTrail() {
@@ -55,8 +58,8 @@ public class Game {
 
         // must stop at landmark. look around maybe. idk
         Landmark nextLandmark = getNextLandmark();
-        if (milesTraveled > nextLandmark.getDistanceFromPrevious()) {
-            milesTraveled = nextLandmark.getDistanceFromPrevious();
+        if (!isCurrentLocation(locations, milesTraveled)){
+            milesTraveled=Math.min(milesTraveled, getNextLandmark().getDistanceFromPrevious()-getLastVisitedLandmark().getDistanceFromPrevious());
         }
 
         // river?
@@ -86,7 +89,7 @@ public class Game {
         moraleFactor++;
 
         // Calculate daily miles based on factors
-        int dailyMiles = (int) (staminaFactor * moraleFactor * oxenFactor * pace)*2;
+        int dailyMiles = (int) (staminaFactor * moraleFactor * oxenFactor * pace)*5;
         return Math.max(1, dailyMiles);  // gotta at least move
     
     }
@@ -183,18 +186,18 @@ public class Game {
                 break;
     
             case OXEN_INJURED_OR_DEAD:
-                // int oxenChance = rand.nextInt(3);
-                // if (oxenChance == 0){
-                //     Terminal.println("One of your oxen has broken its leg. You must rest to heal it.");
-                //     stopToRest();
-                // } else if (oxenChance == 1){
-                //     Terminal.println("You lost an ox! You must continue with fewer oxen, which will slow your travel.");
-                //     Player.subtractItem(new Item())
-                // } else {
-                //     Terminal.println("You have lost all your oxen. Without oxen, you cannot move.");
-                //     Terminal.println("You are stranded and unable to continue your journey.");
-                //     endGame();
-                // }
+                int oxenChance = rand.nextInt(3);
+                if (oxenChance == 0){
+                    Terminal.println("One of your oxen has broken its leg. You must rest to heal it.");
+                    stopToRest();
+                } else if (oxenChance == 1){
+                    Terminal.println("You lost an ox! You must continue with fewer oxen, which will slow your travel.");
+                    player.subtractItem(new Item(ItemType.OXEN, 1));
+                } else {
+                    Terminal.println("You have lost all your oxen. Without oxen, you cannot move.");
+                    Terminal.println("You are stranded and unable to continue your journey.");
+                    endGame();
+                }
                 break;
     
             case PERSON_HAS_DISEASE:
@@ -284,6 +287,9 @@ public class Game {
         }
         
         if(player.getInventory().getItemQuantity(ItemType.FOOD)<1){
+            System.out.println("LOW FOOD?");
+            System.out.println(player.getInventory().getItemQuantity(ItemType.FOOD));
+            System.exit(0);
             player.setMorale(player.getMorale()-12);
             player.setHealth(player.getHealth()-0.27);
             player.setHygiene(player.getHygiene()-7);
@@ -472,7 +478,7 @@ public class Game {
 
         int food = MattsGeneralStore.buyFood(player);
         player.makeCharge(0.20*food);
-        player.addItem(new Item(ItemType.OXEN, food));
+        player.addItem(new Item(ItemType.FOOD, food));
 
         Terminal.clean();
 
@@ -586,7 +592,7 @@ public class Game {
         locations.add(new Fort("Fort Walla Walla", "A fort on the Columbia River, providing a break before reaching the Cascades.", 1250));
         locations.add(new Landmark("Oregon City", "The final destination for travelers on the Oregon Trail, where many pioneers hoped to settle in the fertile Willamette Valley.", 1350));
 
-        locations.add(new River("Kansas River", "A dangerous river crossing in the Kansas Territory.", 20, 30, 3));
+        locations.add(new River("Kansas River", "A dangerous river crossing in the Kansas Territory.", 100, 30, 3));
         locations.add(new River("Platte River", "A major river that many pioneers use to guide their way west.", 150, 50, 4));
         locations.add(new River("North Platte River", "A branch of the Platte River that travelers followed.", 250, 60, 5));
         locations.add(new River("Sweetwater River", "A river that flows through the Rocky Mountains and was often crossed by wagon trains.", 350, 80, 6));
@@ -607,6 +613,7 @@ public class Game {
         Terminal.print("***THE OREGON TRAIL***\n");
         Terminal.print("***starting game***");
         Terminal.sleep(1000);
+        Terminal.load(100,100);
     }
 
     public int calculateHealth(Player p, ArrayList<Companion> c){
@@ -614,26 +621,34 @@ public class Game {
     }
 
     public void start() {
+        endGame();
         int choice;
         while (gameRunning) {
             Terminal.clean();
-            Terminal.println("DEV TOOLS:");
-            Terminal.println("P-HEALTH: " + player.getHealth());
-            Terminal.println("P-STAMINA: " + player.getStamina());
-            Terminal.println("P-MORALE: " + player.getMorale());
-            Terminal.println("P-HYGIENE: " + player.getHygiene());
-            Terminal.println("MILES: " + milesTraveled);
-            Terminal.println("DAYS: " + daysTraveled);
-            Terminal.println("\n");
+            System.out.println("DEV TOOLS:");
+            System.out.println("P-HEALTH: " + player.getHealth());
+            System.out.println("P-STAMINA: " + player.getStamina());
+            System.out.println("P-MORALE: " + player.getMorale());
+            System.out.println("P-HYGIENE: " + player.getHygiene());
+            System.out.println("MILES: " + milesTraveled);
+            System.out.println("DAYS: " + daysTraveled);
+            System.out.println("\n");
+
+            if (oxen.size() == 0){
+                Terminal.clean();
+                Terminal.print("You cannot continue trail without oxen.");
+                Terminal.getln();
+                endGame();
+            }
 
             if (isCurrentLocation(locations, milesTraveled)) {
                 Terminal.println(getLastVisitedLandmark().getName());
             }
-            Terminal.println("Today's Date: " + Date.calculate(daysTraveled, month, "date"));
-            Terminal.println("Weather: " + weatherEffectMap.get(this.weather));
-            Terminal.println("Health: " + healthEffectMap.get(calculateHealth(player, companions)));
-            Terminal.println("Pace: " + paceEffectMap.get(this.pace));
-            Terminal.println("Rations: " + rationEffectMap.get(this.rations));
+            Terminal.println(String.format("%-15s %s", "Today's Date: ", Date.calculate(daysTraveled, month, "date")));
+            Terminal.println(String.format("%-15s %s", "Weather: ", weatherEffectMap.get(this.weather)));
+            Terminal.println(String.format("%-15s %s", "Health: ", healthEffectMap.get(calculateHealth(player, companions))));
+            Terminal.println(String.format("%-15s %s", "Pace: ", paceEffectMap.get(this.pace)));
+            Terminal.println(String.format("%-15s %s", "Rations: ", rationEffectMap.get(this.rations)));
 
             showMainMenu();
             choice = TextIO.getInt();
@@ -813,6 +828,7 @@ public class Game {
     }
     
     private void fordWagon(River river, Random rand) {
+        Terminal.sleep(1000);
         if (river.getDepth() < 4 && river.getWidth() < 200) {
             Terminal.println("You successfully ford the wagon across the river!");
         } else {
@@ -824,9 +840,11 @@ public class Game {
                 Terminal.println("You manage to cross without damage!");
             }
         }
+        Terminal.getln();
     }
     
     private void caulkWagon(River river, Random rand) {
+        Terminal.sleep(1000);
         if (river.getDepth() < 6 && river.getWidth() < 300) {
             Terminal.println("You caulk the wagon and float it across the river.");
             if (rand.nextInt(100) < 30) {
@@ -839,10 +857,12 @@ public class Game {
             Terminal.println("The river is too dangerous to caulk the wagon!");
             handleRiverDamage();
         }
+        Terminal.getln();
     }
     
     private void getFerry(River river) {
         // Always successful, but costs money
+        // Todo: maybe make different rivers cost more?
         int cost = 15; 
         if (player.getMoney() >= cost) {
             player.makeCharge(cost);
@@ -853,6 +873,7 @@ public class Game {
             Terminal.println("You must try another way to cross the river.");
             handleRiverCrossing(river);
         }
+        Terminal.getln();
     }
     
     private void handleRiverDamage() {
@@ -882,8 +903,9 @@ public class Game {
         int oxenLost = rand.nextInt(2) + 1; // lose 1 - 2 oxen (remember that is maximum 1 yoke cuz u buy them in yoke)
         for (int i = 0; i < oxenLost && !oxen.isEmpty(); i++) {
             Oxen ox = oxen.remove(rand.nextInt(oxen.size()));
-            Terminal.println("You lost an ox due to the river crossing.");
+            Terminal.println("You lost an ox.");
         }
+        Terminal.getln();
     }
     
     private void loseCompanion(Random rand) {
@@ -891,6 +913,7 @@ public class Game {
             Companion companion = companions.remove(rand.nextInt(companions.size()));
             Terminal.println(companion.getName() + " has died during the river crossing.");
         }
+        Terminal.getln();
     }
 
     public void endGame() {
@@ -902,9 +925,70 @@ public class Game {
         System.out.println("\nTotal Days Traveled: " + daysTraveled);
         System.out.println("Total Miles Traveled: " + milesTraveled + " miles");
         System.out.println("\nThank you for playing the Oregon Trail!");
-        System.out.println("\nPress any key to exit...");
+        System.out.println("\nPress any key to see your gravestone...");
         Terminal.getln();
-        System.exit(0);    
+        displayGravestone();
     }
 
+    public void displayGravestone() {
+        Terminal.clean();
+        System.out.println("        _.---,._,'");
+        System.out.println("       /' _.--.<");
+        System.out.println("         /'     `'");
+        System.out.println("       /' _.---._____");
+        System.out.println("       \\.'   ___, .-'`");
+        System.out.println("           /'    \\\\             .");
+        System.out.println("         /'       `-.          -|-");
+        System.out.println("        |                       |");
+        System.out.println("        |                   .-'~~~`-.");
+        System.out.println("        |                 .'         `.");
+        System.out.println("        |                 |  R  I  P  |");
+        System.out.println("  jgs   |                 |           |");
+        System.out.println("        |                 |           |");
+        System.out.println("         \\              \\\\|           |//");
+        System.out.println("   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+
+        Terminal.println("Thank you for playing The Oregon Trail. While you didn't make it to Oregon, we can only hope that those who follow in your footsteps learn from your mistakes.");
+        Terminal.println("When you died, you had " + NumberFormat.getCurrencyInstance().format(player.getMoney()) + " remaining.");
+
+        String location;
+        switch (player.getProfession()) {
+            case Profession.BANKER:
+                location = "Boston";
+                break;
+            case Profession.CARPENTER:
+                location = "Ohio";
+                break;
+            case Profession.FARMER:
+                location = "Illinois";
+                break;
+            default:
+                location = "various islands in the Caribbean";
+                break;
+        }
+
+        if (player.getMoney() < 1) {
+            Terminal.println("Your story ends here. You had too little left to make it.");
+            Terminal.println("The people in " + location + " won't hear of your journey.");
+        } else if (player.getMoney() < 10) {
+            Terminal.println("You have just enough to send a letter to your Aunt in " + location + ", though it may never reach her.");
+            Terminal.println("Your name will fade into memory, but your efforts will be quietly remembered.");
+        } else if (player.getMoney() < 25) {
+            Terminal.println("You can send a letter and a postcard to your Aunt in " + location + ".");
+            Terminal.println("You may not have made it to Oregon, but your story will be remembered in small circles.");
+        } else if (player.getMoney() < 50) {
+            Terminal.println("You have enough money to send a letter, postcard, and a little extra to your Aunt in " + location + ".");
+            Terminal.println("A small group in " + location + " will remember your journey and what you tried to achieve.");
+        } else if (player.getMoney() < 100) {
+            Terminal.println("You have enough to send a letter, postcard, and a decent sum to your Aunt in " + location + ".");
+            Terminal.println("You may not have succeeded, but your perseverance will be appreciated in your community.");
+        } else {
+            Terminal.println("With the money you have left, you’ll be able to send a letter and some funds to your Aunt in " + location + ".");
+            Terminal.println("Your name will be quietly remembered, and your story will be shared by those who knew you.");
+        }
+
+        Terminal.println("Your journey may have ended, but your story is part of the trail. Press any key to exit.");
+        Terminal.getln();
+        System.exit(0);
+    }
 }

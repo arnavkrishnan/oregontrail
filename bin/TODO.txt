@@ -5,7 +5,13 @@
 Framework complete! Dec 9
 - Prints for everything but weather Dec 11
 
-TODO: Weather!!!
+TODO: Weather!!! Done Dec 11
+
+Secondary Features:
+Rivers
+
+Tertiary Features:
+idk UI maybe?
 
 To commit:
 
@@ -14,3 +20,7 @@ git commit -m "Use TextIO"
 git push origin master
 
 - Submitted Dec 9 to Canvas for Draft #1
+
+Submitted Dec 12 to Canvas for Draft #2
+
+Sumbitted Dec 16 Draft #3
