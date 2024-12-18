@@ -202,7 +202,8 @@ public class Game {
     
             case PERSON_HAS_DISEASE:
                 Terminal.println("A companion has fallen ill.");
-                // Handle the disease event
+                //disease event
+                // classic part of the game. it's not the oregon trial unless everyone dies of dysentery
                 Companion illCompanion = companions.get(rand.nextInt(companions.size()));
                 Terminal.println(illCompanion.getName() + " has contracted a disease.");
                 int cureChance = rand.nextInt(100);
@@ -214,37 +215,31 @@ public class Game {
                 break;
     
             case PERSON_HAS_BROKEN:
-                // Terminal.println("A companion has broken a limb.");
-                // // Handle the injury event
-                // Companion injuredCompanion = companions.get(rand.nextInt(companions.size()));
-                // Terminal.println(injuredCompanion.getName() + " has broken a limb and will need to rest.");
-                // if (player.subtractItem(new Item(ItemType.BANDAGES, 1))){
-                //     Terminal.println("You use a bandage to help treat their injury.");
-                //     injuredCompanion.addHealth(10); // Small health boost for recovery
-                // } else {
-                //     Terminal.println("You have no bandages, and the injury worsens. The companion must rest for several days.");
-                //     stopToRest();
-                // }
+                Terminal.println("A companion has broken a limb.");
+                Companion injuredCompanion = companions.get(rand.nextInt(companions.size()));
+                Terminal.println(injuredCompanion.getName() + " has broken a limb and will need to rest.");
+                injuredCompanion.setHealth(injuredCompanion.getHealth()-0.5);
+                stopToRest();
                 break;
     
             case PERSON_HAS_DIED:
                 Terminal.println("A companion has died.");
-                // Handle the death of a companion
                 Companion deceasedCompanion = companions.remove(rand.nextInt(companions.size()));
                 Terminal.println(deceasedCompanion.getName() + " has died due to illness or injury.");
                 break;
     
             case FIND_ABANDONED_WAGON:
-                // Terminal.println("You find an abandoned wagon.");
-                // // Handle finding supplies in an abandoned wagon
-                // int findChance = rand.nextInt(100);
-                // if (findChance < 50){
-                //     Terminal.println("You find some useful supplies, including food and tools.");
-                //     player.addItem(new Item(ItemType.FOOD, 30));
-                //     player.addItem(new Item(ItemType.TOOLS, 1));
-                // } else {
-                //     Terminal.println("Unfortunately, the wagon has been looted, and there is nothing useful.");
-                // }
+                Terminal.println("You find an abandoned wagon.");
+                int findChance = rand.nextInt(100);
+                if (findChance < 50){
+                    Terminal.println("You find some useful supplies, including food and spare parts.");
+                    player.addItem(new Item(ItemType.FOOD, 30));
+                    player.addItem(new Item(ItemType.WHEELS, 1));
+                    player.addItem(new Item(ItemType.AXELS, 1));
+                    player.addItem(new Item(ItemType.TONGUES, 1));
+                } else {
+                    Terminal.println("Unfortunately, the wagon has been looted, and there is nothing useful.");
+                }
                 break;
     
             case NOTHING_HAPPENS:
@@ -620,26 +615,76 @@ public class Game {
         return (int)(p.getHealth() + c.get(0).getHealth() + c.get(1).getHealth() + c.get(2).getHealth() + c.get(3).getHealth())/5;
     }
 
+    public void checkIfHealthy() {
+        Alive[] livings = new Alive[companions.size() + 1 + oxen.size()];
+        livings[0] = player;
+        int index = 1;
+        for (Companion companion : companions) {
+            livings[index++] = companion;
+        }
+        for (Oxen ox : oxen) {
+            livings[index++] = ox;
+        }
+    
+        for (Alive entity : livings) {
+            if (entity instanceof Player) {
+                Player p = (Player) entity;
+                if (p.getHealth() <= 0.0) {
+                    Terminal.print("You have died due to critical health. Your body could no longer fight off the illness or injury.");
+                } else if (p.getHygiene() <= 0) {
+                    Terminal.print("You have contracted a fatal bacterial infection due to poor hygiene.");
+                } else if (p.getStamina() <= 0) {
+                    Terminal.print("You have died from exhaustion. Your body was too weak to continue.");
+                } else if (p.getMorale() <= 0) {
+                    Terminal.print("You have died from a complete mental breakdown. You lost the will to go on.");
+                }
+                endGame();
+            } else if (entity instanceof Companion) {
+                Companion companion = (Companion) entity;
+                if (companion.getHealth() <= 0.0) {
+                    Terminal.print(companion.getName() + " has died from poor health.");
+                    companions.remove(companion);
+                } else if (companion.getHygiene() <= 0) {
+                    Terminal.print(companion.getName() + " has contracted a fatal bacterial infection due to poor hygiene.");
+                    companions.remove(companion);
+                } else if (companion.getStamina() <= 0) {
+                    Terminal.print(companion.getName() + " has died from exhaustion.");
+                    companions.remove(companion);
+                } else if (companion.getMorale() <= 0) {
+                    Terminal.print(companion.getName() + " has died due to a complete breakdown of morale.");
+                    companions.remove(companion);
+                }
+            } else if (entity instanceof Oxen) {
+                Oxen ox = (Oxen) entity;
+                if (ox.getHealth() <= 0.0) {
+                    Terminal.print(ox.getName() + " has died from poor health.");
+                    oxen.remove(ox);
+                } else if (ox.getHygiene() <= 0) {
+                    Terminal.print(ox.getName() + " has contracted a fatal infection due to poor hygiene.");
+                    oxen.remove(ox);
+                } else if (ox.getStamina() <= 0) {
+                    Terminal.print(ox.getName() + " has died from exhaustion.");
+                    oxen.remove(ox);
+                } else if (ox.getMorale() <= 0) {
+                    Terminal.print(ox.getName() + " has died due to a complete breakdown of morale.");
+                    oxen.remove(ox);
+                }
+            }
+        }
+    }
+    
     public void start() {
-        endGame();
         int choice;
         while (gameRunning) {
             Terminal.clean();
-            System.out.println("DEV TOOLS:");
-            System.out.println("P-HEALTH: " + player.getHealth());
-            System.out.println("P-STAMINA: " + player.getStamina());
-            System.out.println("P-MORALE: " + player.getMorale());
-            System.out.println("P-HYGIENE: " + player.getHygiene());
-            System.out.println("MILES: " + milesTraveled);
-            System.out.println("DAYS: " + daysTraveled);
-            System.out.println("\n");
-
             if (oxen.size() == 0){
                 Terminal.clean();
-                Terminal.print("You cannot continue trail without oxen.");
+                Terminal.print("You cannot continue trail without oxen. Stranded on the Oregon Trail, you are left to die.");
                 Terminal.getln();
                 endGame();
             }
+
+            checkIfHealthy();
 
             if (isCurrentLocation(locations, milesTraveled)) {
                 Terminal.println(getLastVisitedLandmark().getName());
