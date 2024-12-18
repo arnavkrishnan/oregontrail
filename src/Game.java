@@ -47,7 +47,6 @@ public class Game {
         setupRationEffects();
         setupWeatherEffects();
 
-        endGame();
     }
 
     public void continueOnTrail() {
@@ -637,6 +636,8 @@ public class Game {
                     Terminal.print("You have died from exhaustion. Your body was too weak to continue.");
                 } else if (p.getMorale() <= 0) {
                     Terminal.print("You have died from a complete mental breakdown. You lost the will to go on.");
+                } else {
+                    continue;
                 }
                 endGame();
             } else if (entity instanceof Companion) {
@@ -685,7 +686,7 @@ public class Game {
             }
 
             checkIfHealthy();
-
+            //^^^^^^similar to event
             if (isCurrentLocation(locations, milesTraveled)) {
                 Terminal.println(getLastVisitedLandmark().getName());
             }

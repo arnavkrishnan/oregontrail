@@ -24,3 +24,11 @@ git push origin master
 Submitted Dec 12 to Canvas for Draft #2
 
 Sumbitted Dec 16 Draft #3
+
+Credit where credit is due:
+- Help from Albert for the text engine
+- ASCII art from the internet
+    https://ascii.co.uk/art/rip
+- Clearing the Terminal from Stack OverFlow:
+    https://stackoverflow.com/questions/2979383/how-to-clear-the-console-using-java
+- some help from AI for, and ONLY FOR writing text for the description. NO USE OF AI FOR CODE.
