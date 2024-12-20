@@ -1,7 +1,8 @@
-import java.util.*;
 import java.io.*;
 
 public class Terminal {
+
+    // most of the subroutines in here are just catching errors, etc, just makes my code in the game class a bit cleaner which is nice if you see how long the Game class is
 
     public static void getln(){
         try {

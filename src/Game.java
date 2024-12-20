@@ -19,6 +19,7 @@ public class Game {
     private HashMap<Integer, HealthType> healthEffectMap;
     private HashMap<Integer, RationType> rationEffectMap;
     private HashMap<Integer, WeatherType> weatherEffectMap;
+    private HashMap<AnimalType, Integer> animalWeight;
 
     private void initVars(){
         this.companions = new ArrayList<>();
@@ -47,6 +48,7 @@ public class Game {
         setupHealthEffects();
         setupRationEffects();
         setupWeatherEffects();
+        setupAnimalWeights();
     }
 
     public Game() {
@@ -59,11 +61,11 @@ public class Game {
     private void continueOnTrail() {
     //  calculation  in other subroutine
         int dailyMiles = calculateDailyTravel();
-        if (!(isCurrentLocation(locations, milesTraveled))){
-
-            daysTraveled=Math.min(daysTraveled, getNextLandmark().getDistanceFromPrevious()-daysTraveled);
+        if (dailyMiles+milesTraveled>getNextLandmark().getDistanceFromPrevious()){
+            milesTraveled=getNextLandmark().getDistanceFromPrevious();
+        } else {
+            milesTraveled += dailyMiles;
         }
-        milesTraveled += dailyMiles;
         daysTraveled++;
 
         // must stop at landmark. look around maybe. idk
@@ -72,7 +74,7 @@ public class Game {
         // river?
         if (isCurrentLocation(locations, milesTraveled)) {
             if (getLastVisitedLandmark() instanceof River){
-                River river = (River) nextLandmark;
+                River river = (River) getLastVisitedLandmark();
                 handleRiverCrossing(river);
             }
         } else {
@@ -91,12 +93,12 @@ public class Game {
         // - pace determines how quickly the group moves (duh)
         double staminaFactor = (double) player.getStamina() / 100;
         double moraleFactor = (double) player.getMorale() / 100;
-        int oxenFactor = oxen.size(); // Number of oxen (cuz array list)
+        int oxenFactor = oxen.size(); 
 
         staminaFactor++;
         moraleFactor++;
 
-        int dailyMiles = (int) (staminaFactor * moraleFactor * oxenFactor * pace)*5;
+        int dailyMiles = (int) (staminaFactor * moraleFactor * oxenFactor * pace)*4;
         return Math.max(1, dailyMiles);  // gotta at least move
     
     }
@@ -198,8 +200,9 @@ public class Game {
                     Terminal.println("You lost an ox! You must continue with fewer oxen, which will slow your travel.");
                     player.subtractItem(new Item(ItemType.OXEN, 1));
                 } else {
-                    Terminal.println("You have lost all your oxen. Without oxen, you cannot move.");
+                    Terminal.println("You have lost all your oxen - they were let loose and left. Without oxen, you cannot move.");
                     Terminal.println("You are stranded and unable to continue your journey.");
+                    Terminal.getln();
                     endGame();
                 }
                 break;
@@ -437,10 +440,39 @@ public class Game {
         Terminal.getln();
     }
 
-    private void hunt(){
+    private void hunt() {
         Terminal.clean();
-        Terminal.clean();
+        Terminal.print("Is this your first time hunting in my game?");
+        boolean first = TextIO.getBoolean();
+        
+        if (first) {
+            Terminal.println("Hunting is one of the most fun parts of the Oregon Trail, eclipsed only by fully finishing the game.");
+            Terminal.println("Unfortunately, at my skill level, creating the hunting UI or anything even resembling it is out of reach.");
+            Terminal.println("Instead, you will be asked a high school math problem. If you get it right, you get a random amount of meat.");
+        }
+    
+        MathProblems generator = new MathProblems();
+        MathProblem problem = generator.getRandomMathProblem();
+    
+        Terminal.println("Here is your problem. Answer in decimal form, rounded to the nearest hundredth if necessary. You may need a calculator.");
+        Terminal.println(problem.getProblem());
+        double answer = TextIO.getlnDouble();
+    
+        if (answer == problem.getAnswer()) {
+            Random rand = new Random();
+            AnimalType randomAnimal = (AnimalType) animalWeight.keySet().toArray()[rand.nextInt(6)];
+            // ^^ via stack overflow for how to get this. basically I take the keys from the hashmap (the keys are the animals), turn them into an array, and get a random one from that
+            int meat = animalWeight.get(randomAnimal);
+            
+            Terminal.println("Congratulations! You correctly solved the problem.");
+            Terminal.println("You hunted a " + randomAnimal + " and received " + meat + " pounds of meat.");
+            player.getInventory().addItem(new Item(ItemType.FOOD, meat));
+        } else {
+            Terminal.println("Sorry, that's not the correct answer. Better luck next time!");
+        }
+        player.getInventory().subtractItemQuantity(ItemType.BULLETS, 1);
     }
+    
 
     private void atFort(){
         Terminal.clean();
@@ -543,6 +575,16 @@ public class Game {
         weatherEffectMap.put(8, WeatherType.THUNDERSTORM);
     }
 
+    private void setupAnimalWeights() {
+        animalWeight = new HashMap<>();
+        animalWeight.put(AnimalType.BIRD, 2);
+        animalWeight.put(AnimalType.RABBIT, 3);
+        animalWeight.put(AnimalType.SQUIRREL, 4);
+        animalWeight.put(AnimalType.DEER, 150);
+        animalWeight.put(AnimalType.BEAR, 250);
+        animalWeight.put(AnimalType.BUFFALO, 350);
+    }
+
     private void createPlayer() {
         Terminal.print("Choose your profession: (1) Banker from Boston (2) Carpenter from Ohio (3) Farmer from Illinois: ");
         int professionChoice = TextIO.getlnInt();
@@ -617,9 +659,13 @@ public class Game {
 
     private void init() {
         Terminal.clean();
-        Terminal.print("***THE OREGON TRAIL***\n");
-        Terminal.print("***starting game***");
+        Terminal.println("***THE OREGON TRAIL***");
+        Terminal.println("***starting game***");
         Terminal.sleep(1000);
+        Terminal.println("***read How_to_play.rtf for instructions***");
+        Terminal.println("***see TODO.txt for notes and credits***");
+        Terminal.println("***ignore the README.md - it's auto-generated***");
+        Terminal.sleep(2000);
     }
 
     private int calculateHealth(Player p, ArrayList<Companion> c){
@@ -636,6 +682,13 @@ public class Game {
         for (Oxen ox : oxen) {
             livings[index++] = ox;
         }
+
+        if (player.getInventory().getItemQuantity(ItemType.CLOTHES) < companions.size()*2){
+            player.setHealth(player.getHealth()-0.1);
+            for (Companion c : companions){
+                c.setHealth(c.getHealth()-0.1);
+            }
+        }
     
         for (Alive entity : livings) {
             if (entity instanceof Player) {
@@ -651,6 +704,7 @@ public class Game {
                 } else {
                     continue;
                 }
+                Terminal.getln();
                 endGame();
             } else if (entity instanceof Companion) {
                 Companion companion = (Companion) entity;
@@ -742,7 +796,12 @@ public class Game {
                     if (isCurrentLocation(locations, milesTraveled)) {
                         talkToLocals();
                     } else {
-                        hunt();
+                        if (player.getInventory().getItemQuantity(ItemType.BULLETS)>0){
+                            hunt();
+                        } else {
+                            Terminal.print("You need bullets to go hunting.");
+                        }
+                        Terminal.getln();
                     }
                     break;
                 case 9:

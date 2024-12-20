@@ -10,6 +10,10 @@ public class Landmark implements Location {
     }
 
     @Override
+    public void interact() {
+    }
+
+    @Override
     public void showDetails() {
     }
 
