@@ -32,3 +32,6 @@ Credit where credit is due:
 - Clearing the Terminal from Stack OverFlow:
     https://stackoverflow.com/questions/2979383/how-to-clear-the-console-using-java
 - some help from AI for, and ONLY FOR writing text for the description. NO USE OF AI FOR CODE.
+-  Playtesting the Oregon Trail
+    https://oregontrail.ws/games/the-oregon-trail/
+    + You'll notice that some sections, like Matt's General Store, are pretty much exact. Took me a while!

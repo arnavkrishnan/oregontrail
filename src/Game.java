@@ -20,7 +20,7 @@ public class Game {
     private HashMap<Integer, RationType> rationEffectMap;
     private HashMap<Integer, WeatherType> weatherEffectMap;
 
-    public Game() {
+    private void initVars(){
         this.companions = new ArrayList<>();
         this.locations = new ArrayList<>();
         this.oxen = new ArrayList<>();
@@ -30,8 +30,9 @@ public class Game {
         this.weather = 5;
         this.milesTraveled = 0;
         this.daysTraveled = 0;
+    }
 
-        init();
+    private void initGame(){
         Terminal.clean();
         initLocations();
         Terminal.clean();
@@ -46,20 +47,27 @@ public class Game {
         setupHealthEffects();
         setupRationEffects();
         setupWeatherEffects();
+    }
+
+    public Game() {
+        initVars();
+        init();
+        initGame();
 
     }
 
-    public void continueOnTrail() {
-    // very advanced calculation
-    int dailyMiles = calculateDailyTravel();
+    private void continueOnTrail() {
+    //  calculation  in other subroutine
+        int dailyMiles = calculateDailyTravel();
+        if (!(isCurrentLocation(locations, milesTraveled))){
+
+            daysTraveled=Math.min(daysTraveled, getNextLandmark().getDistanceFromPrevious()-daysTraveled);
+        }
         milesTraveled += dailyMiles;
         daysTraveled++;
 
         // must stop at landmark. look around maybe. idk
         Landmark nextLandmark = getNextLandmark();
-        if (!isCurrentLocation(locations, milesTraveled)){
-            milesTraveled=Math.min(milesTraveled, getNextLandmark().getDistanceFromPrevious()-getLastVisitedLandmark().getDistanceFromPrevious());
-        }
 
         // river?
         if (isCurrentLocation(locations, milesTraveled)) {
@@ -68,6 +76,7 @@ public class Game {
                 handleRiverCrossing(river);
             }
         } else {
+            player.subtractItem(new Item(ItemType.FOOD, rations*companions.size()*5));
             // normal
             doChanges();
             calculateWeather();
@@ -87,16 +96,12 @@ public class Game {
         staminaFactor++;
         moraleFactor++;
 
-        // Calculate daily miles based on factors
         int dailyMiles = (int) (staminaFactor * moraleFactor * oxenFactor * pace)*5;
         return Math.max(1, dailyMiles);  // gotta at least move
     
     }
 
-
-
-
-    public void getEvent(){
+    private void getEvent(){
         EventType event = Event.getRandomEvent(player, companions, oxen, weatherEffectMap.get(weather), Date.calculate(daysTraveled, month, "date"), rations, pace, 100, 100, 100);
         Random rand = new Random();
         switch (event) {
@@ -250,7 +255,7 @@ public class Game {
         }
     }
     
-    public void doChanges(){
+    private void doChanges(){
         player.subtractItem(new Item(ItemType.FOOD, rations*companions.size()*3));
         if (rations==1){
             ;
@@ -281,9 +286,6 @@ public class Game {
         }
         
         if(player.getInventory().getItemQuantity(ItemType.FOOD)<1){
-            System.out.println("LOW FOOD?");
-            System.out.println(player.getInventory().getItemQuantity(ItemType.FOOD));
-            System.exit(0);
             player.setMorale(player.getMorale()-12);
             player.setHealth(player.getHealth()-0.27);
             player.setHygiene(player.getHygiene()-7);
@@ -298,7 +300,7 @@ public class Game {
         }
     }
 
-    public void calculateWeather() {
+    private void calculateWeather() {
         Random rand = new Random();
         int currentMonth = Integer.parseInt(Date.calculate(daysTraveled, month, "month"));
         int currentDay = Integer.parseInt(Date.calculate(daysTraveled, month, "day"));
@@ -364,20 +366,20 @@ public class Game {
         if (this.weather > 8) this.weather = 8;
     }
 
-    public void checkSupplies() {
+    private void checkSupplies() {
         player.inventoryToString();
         Terminal.getln();
         Terminal.clean();
     }
 
-    public void lookAtMap() {
+    private void lookAtMap() {
         System.out.println("Map of the Oregon Trail:");
         System.out.println("----------------------------------------");
 
         StringBuilder pathLine = new StringBuilder();
         StringBuilder markerLine = new StringBuilder();
 
-        int currentIndex = milesTraveled;
+        int currentIndex = getLastVisitedLandmark().getDistanceFromPrevious();
 
         for (int i = 0; i < locations.size(); i++) {
             Location location = locations.get(i);
@@ -400,7 +402,7 @@ public class Game {
 
             markerLine.append(marker);
         }
-
+        markerLine.append('O');
         System.out.println(pathLine);
         System.out.println(markerLine);
 
@@ -409,29 +411,33 @@ public class Game {
         System.out.println("F - Fort");
         System.out.println("L - Landmark");
         System.out.println("R - River");
+        System.out.println("O - Oregon City");
         System.out.println("----------------------------------------");
         Terminal.getln();
     }
 
-    public void stopToRest() {
+    private void stopToRest() {
         Terminal.println("How many days would you like to rest?");
         this.daysTraveled += TextIO.getlnInt();
     }
 
-    public void attemptToTrade() {
+    private void attemptToTrade() {
     }
 
-    public void talkToLocals() {
+    private void talkToLocals() {
         Terminal.clean();
         Terminal.print("A local tells you: " + getLastVisitedLandmark().getDescription());
         Terminal.getln();
     }
 
-    public void hunt(){
-        
+    private void hunt(){
+        Terminal.clean();
+        Terminal.clean();
     }
 
-    public void atFort(){
+    private void atFort(){
+        Terminal.clean();
+        Terminal.println("You are at a fort, where you can restock on neccesary items.");
     }
 
     private void chooseDepartureMonth() {
@@ -602,7 +608,7 @@ public class Game {
         });
     }
 
-    public void init() {
+    private void init() {
         Terminal.clean();
         Terminal.print("***THE OREGON TRAIL***\n");
         Terminal.print("***starting game***");
@@ -610,11 +616,11 @@ public class Game {
         Terminal.load(100,100);
     }
 
-    public int calculateHealth(Player p, ArrayList<Companion> c){
+    private int calculateHealth(Player p, ArrayList<Companion> c){
         return (int)(p.getHealth() + c.get(0).getHealth() + c.get(1).getHealth() + c.get(2).getHealth() + c.get(3).getHealth())/5;
     }
 
-    public void checkIfHealthy() {
+    private void checkIfHealthy() {
         Alive[] livings = new Alive[companions.size() + 1 + oxen.size()];
         livings[0] = player;
         int index = 1;
@@ -699,6 +705,9 @@ public class Game {
             Terminal.println(String.format("%-15s %s", "Pace: ", paceEffectMap.get(this.pace)));
             Terminal.println(String.format("%-15s %s", "Rations: ", rationEffectMap.get(this.rations)));
 
+            Terminal.println("Miles Travelled: " + milesTraveled);
+            Terminal.println("Days Travelled: " + daysTraveled);
+            Terminal.println("There are " + (getNextLandmark().getDistanceFromPrevious()-milesTraveled) +  " miles until the next location: " + getNextLandmark().getName());
             showMainMenu();
             choice = TextIO.getInt();
             switch (choice) {
@@ -742,9 +751,7 @@ public class Game {
         }
     }
 
-
-
-    public void changePace() {
+    private void changePace() {
         Terminal.println("Change Pace");
         switch (pace) {
             case 1:
@@ -769,7 +776,7 @@ public class Game {
         Terminal.println("New Pace Effect: " + paceEffectMap.get(this.pace)); // Show updated effect
     }
 
-    public void changeFoodRations() {
+    private void changeFoodRations() {
         Terminal.println("Change food rations");
         switch (rations) {
             case 1:
@@ -816,7 +823,7 @@ public class Game {
         }
     }
 
-    public boolean isCurrentLocation(ArrayList<Landmark> locations, int currentLocation) {
+    private boolean isCurrentLocation(ArrayList<Landmark> locations, int currentLocation) {
         for (Landmark landmark : locations) {
             if (landmark.getDistanceFromPrevious() == currentLocation) {
                 return true;
@@ -825,7 +832,7 @@ public class Game {
         return false;
     }
 
-    public Landmark getLastVisitedLandmark() {
+    private Landmark getLastVisitedLandmark() {
         Landmark lastVisited = null;
         for (Landmark location : locations) {
             if (location instanceof Landmark) {
@@ -858,7 +865,6 @@ public class Game {
     
         int choice = TextIO.getlnInt();
     
-        // Handle the player's choice
         Random rand = new Random();
         switch (choice) {
             case 1: // Ford the wagon
@@ -904,6 +910,7 @@ public class Game {
             }
         } else {
             Terminal.println("The river is too dangerous to caulk the wagon!");
+            Terminal.getln();
             handleRiverDamage();
         }
         Terminal.getln();
@@ -965,7 +972,7 @@ public class Game {
         Terminal.getln();
     }
 
-    public void endGame() {
+    private void endGame() {
         Terminal.clean();
         System.out.println("***********************************************");
         System.out.println("*                 GAME OVER                 *");
@@ -979,7 +986,7 @@ public class Game {
         displayGravestone();
     }
 
-    public void displayGravestone() {
+    private void displayGravestone() {
         Terminal.clean();
         System.out.println("        _.---,._,'");
         System.out.println("       /' _.--.<");
@@ -1041,7 +1048,7 @@ public class Game {
         System.exit(0);
     }
 
-    public void Oregon(){
+    private void Oregon(){
         Terminal.clean();
         Terminal.println("Well, " + player.getName()  + ", you made it to Oregon City. Very few who attempt the Oregon Trail actually make it to Oregon.");
         int score;
