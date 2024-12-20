@@ -31,9 +31,15 @@ public class Date {
     }
 
     private static boolean isLeapYear(int year) {
+
+        // fun fact: every 100 years (like 1900) the leap year is NOT a leap year
+        // but then, every 400 years the NOT-leap year becomes a leap year (like 2000!)
         if (year % 4 == 0) {
             if (year % 100 == 0) {
-                return year % 400 == 0;
+                if (year % 400 == 0){
+                    return true;
+                }
+                return false;
             }
             return true;
         }

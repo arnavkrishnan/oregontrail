@@ -10,14 +10,6 @@ public class Player extends Alive {
         this.inventory = new Inventory();
     }
 
-    @Override
-    public void act() {
-    }
-
-    @Override
-    public void rest() {
-    }
-
     public Profession getProfession() {
         return profession;
     }

@@ -13,8 +13,12 @@ public abstract class Alive {
         this.stamina = 100;
     }
 
-    public abstract void act();
-    public abstract void rest();
+    public void rest(){
+        this.health += 0.2;
+        this.morale += 5;
+        this.hygiene += 1;
+        this.stamina += 8;
+    }
 
     public String getName() {
         return name;

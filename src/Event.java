@@ -3,39 +3,39 @@ import java.util.Random;
 
 public class Event {
 
-    public static EventType findWildFruit() {
+    private static EventType findWildFruit() {
         return EventType.WILD_FRUIT;
     }
 
-    public static EventType wagonBroken() {
+    private static EventType wagonBroken() {
         return EventType.WAGON_BROKEN;
     }
 
-    public static EventType wagonFire() {
+    private static EventType wagonFire() {
         return EventType.WAGON_FIRE;
     }
 
-    public static EventType wagonRobbed() {
+    private static EventType wagonRobbed() {
         return EventType.WAGON_ROBBED;
     }
 
-    public static EventType oxenInjuredOrDead() {
+    private static EventType oxenInjuredOrDead() {
         return EventType.OXEN_INJURED_OR_DEAD;
     }
 
-    public static EventType personHasDisease(String name) {
+    private static EventType personHasDisease(String name) {
         return EventType.PERSON_HAS_DISEASE;
     }
 
-    public static EventType personHasBroken(String name) {
+    private static EventType personHasBroken(String name) {
         return EventType.PERSON_HAS_BROKEN;
     }
 
-    public static EventType personHasDied(String name) {
+    private static EventType personHasDied(String name) {
         return EventType.PERSON_HAS_DIED;
     }
 
-    public static EventType findAbandonedWagon() {
+    private static EventType findAbandonedWagon() {
         return EventType.FIND_ABANDONED_WAGON;
     }
 

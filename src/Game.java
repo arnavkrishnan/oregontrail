@@ -419,6 +419,13 @@ public class Game {
     private void stopToRest() {
         Terminal.println("How many days would you like to rest?");
         this.daysTraveled += TextIO.getlnInt();
+        player.rest();
+        for (Companion c : companions){
+            c.rest();
+        }
+        for (Oxen o : oxen){
+            o.rest();
+        }
     }
 
     private void attemptToTrade() {
