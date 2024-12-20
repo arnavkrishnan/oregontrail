@@ -110,6 +110,6 @@ public class Event {
             return findAbandonedWagon();
         }
 
-        return EventType.NOTHING_HAPPENS;
+        return EventType.NOTHING_HAPPENS; 
     }
 }

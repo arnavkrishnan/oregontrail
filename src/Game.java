@@ -620,7 +620,6 @@ public class Game {
         Terminal.print("***THE OREGON TRAIL***\n");
         Terminal.print("***starting game***");
         Terminal.sleep(1000);
-        Terminal.load(100,100);
     }
 
     private int calculateHealth(Player p, ArrayList<Companion> c){

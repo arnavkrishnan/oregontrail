@@ -11,7 +11,7 @@ public class River extends Landmark implements Location {
 
     @Override
     public void interact() {
-        System.out.println("You must cross the " + getName() + " river.");
+        System.out.println("You must cross the " + this.getName() + " river.");
     }
 
     @Override
