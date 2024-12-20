@@ -432,6 +432,13 @@ public class Game {
     }
 
     private void attemptToTrade() {
+        Terminal.clean();
+        Terminal.println("You attempt to barter with fellow travelers on the trail");
+        barter();
+    }
+
+    private void barter(){
+        ;
     }
 
     private void talkToLocals() {
@@ -477,6 +484,7 @@ public class Game {
     private void atFort(){
         Terminal.clean();
         Terminal.println("You are at a fort, where you can restock on neccesary items.");
+        Terminal.println("You attempt to barter with the storeowners");
     }
 
     private void chooseDepartureMonth() {
