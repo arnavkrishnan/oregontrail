@@ -1,5 +1,3 @@
-import java.util.*;
-
 public class MattsGeneralStore {
     public static int buyOxen(Player player){
         int yoke = -1;

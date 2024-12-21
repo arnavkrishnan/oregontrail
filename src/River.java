@@ -1,4 +1,4 @@
-public class River extends Landmark implements Location {
+public class River extends Landmark  {
 
     private int depth;
     private int width;

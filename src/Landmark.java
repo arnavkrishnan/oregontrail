@@ -1,4 +1,5 @@
-public class Landmark implements Location {
+public class Landmark 
+                        implements Location { //  wow funny formatting 
     private String name;
     private String description;
     private int distanceFromPrevious;

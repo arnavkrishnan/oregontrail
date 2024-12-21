@@ -1,6 +1,4 @@
 import java.util.*;
-import java.lang.*;
-import java.io.*;
 import java.text.*;
 
 public class Game {
@@ -61,15 +59,13 @@ public class Game {
     private void continueOnTrail() {
     //  calculation  in other subroutine
         int dailyMiles = calculateDailyTravel();
+        // they have to stop at a landmark. when Mr. Smith wwas playing this you basically "hopped" over all my rivers ;)
         if (dailyMiles+milesTraveled>getNextLandmark().getDistanceFromPrevious()){
             milesTraveled=getNextLandmark().getDistanceFromPrevious();
         } else {
             milesTraveled += dailyMiles;
         }
         daysTraveled++;
-
-        // must stop at landmark. look around maybe. idk
-        Landmark nextLandmark = getNextLandmark();
 
         // river?
         if (isCurrentLocation(locations, milesTraveled)) {
@@ -305,9 +301,7 @@ public class Game {
 
     private void calculateWeather() {
         Random rand = new Random();
-        int currentMonth = Integer.parseInt(Date.calculate(daysTraveled, month, "month"));
-        int currentDay = Integer.parseInt(Date.calculate(daysTraveled, month, "day"));
-    
+        int currentMonth = Integer.parseInt(Date.calculate(daysTraveled, month, "month"));    
         boolean isColdMonth = (currentMonth == 12 || currentMonth == 1 || currentMonth == 2);
         boolean isHotMonth = (currentMonth == 6 || currentMonth == 7 || currentMonth == 8);
     
@@ -437,13 +431,37 @@ public class Game {
         barter();
     }
 
-    private void barter(){
-        ;
-    }
+    private void barter() {
+        // see Hunting section for how i came up with this code. essentially:
+        // 1. we pick a random value from the ItemType enum (2-7 b/c I don't allow trading oxen cuz it gets too cracked. Also I would have to make more oxen objects, etc., just a bit simpler for me this way)
+        ItemType offeredItemType = ItemType.values()[new Random().nextInt(6)+1];
+        int offeredItemQuantity = new Random().nextInt(10) + 1;
+        Terminal.println("They offer " + offeredItemQuantity + " " + offeredItemType + ".");
+    
+        ItemType requestedItemType = ItemType.values()[new Random().nextInt(7)];
+        int requestedItemQuantity = new Random().nextInt(10) + 1;
+        Terminal.println("In return, they want " + requestedItemQuantity + " " + requestedItemType + ".");
+    
+        if (player.getInventory().getItemQuantity(requestedItemType) >= requestedItemQuantity) {
+            Terminal.print("Do you want to make the trade?");
+            boolean acceptTrade = TextIO.getlnBoolean();
+            if (acceptTrade) {
+                player.subtractItem(new Item(requestedItemType, requestedItemQuantity));
+                player.addItem(new Item(offeredItemType, offeredItemQuantity));
+                Terminal.println("You accepted the trade.");
+            } else {
+                Terminal.println("You declined the trade.");
+            }
+        } else {
+            Terminal.println("You don't have enough " + requestedItemType + " to make the trade.");
+        }
+    
+        Terminal.getln();
+    }    
 
     private void talkToLocals() {
         Terminal.clean();
-        Terminal.print("A local tells you: " + getLastVisitedLandmark().getDescription());
+        Terminal.print("A local tells you that " + getLastVisitedLandmark().getName() + "is " + getLastVisitedLandmark().getDescription());
         Terminal.getln();
     }
 
@@ -467,11 +485,11 @@ public class Game {
     
         if (answer == problem.getAnswer()) {
             Random rand = new Random();
-            AnimalType randomAnimal = (AnimalType) animalWeight.keySet().toArray()[rand.nextInt(6)];
-            // ^^ via stack overflow for how to get this. basically I take the keys from the hashmap (the keys are the animals), turn them into an array, and get a random one from that
+            AnimalType randomAnimal = AnimalType.values()[rand.nextInt(6)];
+            // ^^ via stack overflow for how to get this. basically I take all the values from the AnimallType enum, and randomly pick an animal out of it. There are 6 animals btw.
             int meat = animalWeight.get(randomAnimal);
             
-            Terminal.println("Congratulations! You correctly solved the problem.");
+            Terminal.println("You correctly solved the problem.");
             Terminal.println("You hunted a " + randomAnimal + " and received " + meat + " pounds of meat.");
             player.getInventory().addItem(new Item(ItemType.FOOD, meat));
         } else {
@@ -485,6 +503,8 @@ public class Game {
         Terminal.clean();
         Terminal.println("You are at a fort, where you can restock on neccesary items.");
         Terminal.println("You attempt to barter with the storeowners");
+        barter();
+
     }
 
     private void chooseDepartureMonth() {
@@ -673,6 +693,7 @@ public class Game {
         Terminal.println("***read How_to_play.rtf for instructions***");
         Terminal.println("***see TODO.txt for notes and credits***");
         Terminal.println("***ignore the README.md - it's auto-generated***");
+        Terminal.println("***for 'spoilers' - how to win the game - see Tips & Tricks***");
         Terminal.sleep(2000);
     }
 
@@ -1031,7 +1052,7 @@ public class Game {
     private void loseOxen(Random rand) {
         int oxenLost = rand.nextInt(2) + 1; // lose 1 - 2 oxen (remember that is maximum 1 yoke cuz u buy them in yoke)
         for (int i = 0; i < oxenLost && !oxen.isEmpty(); i++) {
-            Oxen ox = oxen.remove(rand.nextInt(oxen.size()));
+            oxen.remove(rand.nextInt(oxen.size()));
             Terminal.println("You lost an ox.");
         }
         Terminal.getln();

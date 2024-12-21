@@ -1,0 +1,26 @@
+At Matt's general store, buy:
+- 3 yoke of oxen
+- 1000 pounds of food
+- 20 sets of clothing
+- at least 1 of each spare part
+- bullets are your choice
+
+Remember! You'll need money for ferry rides in the future.
+
+Keep your pace at steady & rations at filling - this will prevent:
+- injury
+- death
+- low stamina (can be fatal)
+- low morale (can be fatal)
+
+Rest frequently - it'll keep your stats up!
+
+EXPLOITS:
+1. My trading logic, in all transparency, is not the best. 
+Sometimes, you can get a trade like 6 wheels for 4 wheels - you get the idea
+If you keep retrading over and over again, you can basically get infinite 
+2. Hunting is really good. Just solve the math equation and you get so much food
+for such little cost. At Matt's general store, 350 pounds of food is $70 but it just costs
+1 bullet while hunting.
+
+Best of luck!

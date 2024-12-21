@@ -1,4 +1,4 @@
-public class Fort extends Landmark implements Location {
+public class Fort extends Landmark {
     public Fort(String name, String description, int distanceFromPrevious) {
         super(name, description, distanceFromPrevious);
     }
