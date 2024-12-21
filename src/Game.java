@@ -13,6 +13,8 @@ public class Game {
     private int daysTraveled;
     private int month;
     private int weather;
+
+    // I got carried away by the enums... Arush converted me, you could say
     private HashMap<Integer, PaceType> paceEffectMap;
     private HashMap<Integer, HealthType> healthEffectMap;
     private HashMap<Integer, RationType> rationEffectMap;
@@ -257,7 +259,10 @@ public class Game {
     private void doChanges(){
         player.subtractItem(new Item(ItemType.FOOD, rations*companions.size()*3));
         if (rations==1){
-            ;
+            player.setMorale(player.getMorale()-1);
+            player.setHealth(player.getHealth()-0.03);
+            player.setHygiene(player.getHygiene()-1);
+            player.setStamina(player.getStamina()-1);
         } else if (rations == 2){
             player.setMorale(player.getMorale()-2);
             player.setHealth(player.getHealth()-0.052);
@@ -375,6 +380,8 @@ public class Game {
 
         StringBuilder pathLine = new StringBuilder();
         StringBuilder markerLine = new StringBuilder();
+        // From GeeksForGeeks: I StringBuilders are like Strings and Arrays, where you can just "append" to them, which is rly useful for a 1d  map.
+        // P.S. - yes I tried a 2d map. and yes, I failed. Honestly, though, it wasn't THATTTT bad.
 
         int currentIndex = getLastVisitedLandmark().getDistanceFromPrevious();
 
@@ -461,7 +468,7 @@ public class Game {
 
     private void talkToLocals() {
         Terminal.clean();
-        Terminal.print("A local tells you that " + getLastVisitedLandmark().getName() + "is " + getLastVisitedLandmark().getDescription());
+        Terminal.print("A local tells you that " + getLastVisitedLandmark().getName() + " is " + getLastVisitedLandmark().getDescription());
         Terminal.getln();
     }
 
@@ -654,6 +661,7 @@ public class Game {
     }
 
     private void initLocations() {
+        // The descriptions are AI-generated. I just didn't have time to research all of them. Hopefully that's okay.
         locations.add(new Fort("Independence", "A trading post and starting point.", 0));  
         locations.add(new Fort("Fort Kearny", "A fort on the plains, providing supplies and protection.", 200));
         locations.add(new Landmark("Chimney Rock", "A distinctive rock formation in Nebraska, often used by travelers to navigate the plains.", 250));
@@ -671,8 +679,8 @@ public class Game {
 
         locations.add(new River("Kansas River", "A dangerous river crossing in the Kansas Territory.", 100, 30, 3));
         locations.add(new River("Platte River", "A major river that many pioneers use to guide their way west.", 150, 50, 4));
-        locations.add(new River("North Platte River", "A branch of the Platte River that travelers followed.", 250, 60, 5));
-        locations.add(new River("Sweetwater River", "A river that flows through the Rocky Mountains and was often crossed by wagon trains.", 350, 80, 6));
+        locations.add(new River("North Platte River", "A branch of the Platte River that travelers followed.", 275, 60, 5));
+        locations.add(new River("Sweetwater River", "A river that flows through the Rocky Mountains and was often crossed by wagon trains.", 375, 80, 6));
         locations.add(new River("Green River", "A large river, sometimes difficult to ford, especially during high water.", 500, 120, 8));
         locations.add(new River("Snake River", "A challenging river with rocky terrain and swift currents.", 750, 150, 10));
         locations.add(new River("Columbia River", "A dangerous river at the end of the trail, with rapids that test even the most skilled navigators.", 1300, 200, 12));

@@ -2,8 +2,9 @@ public class Date {
 
     private static final int[] COMMON_YEAR_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     private static final int[] LEAP_YEAR_DAYS = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    // VSCode automatically made these finals through source action, I learned that I should try to use finals when I will not have to change them
 
-    public static String calculate(int days, int month, String type) {
+    public static String calculate(int days, int month, String type) {// the days is days travelled, but the month is the starting month... sorry IK it's confusing!!
         int year = 1848;
         int[] monthDays = isLeapYear(year) ? LEAP_YEAR_DAYS : COMMON_YEAR_DAYS;
 
@@ -27,7 +28,7 @@ public class Date {
                 }
             }
         }
-        return "";
+        return "";//empty return to avoid errorring
     }
 
     private static boolean isLeapYear(int year) {
