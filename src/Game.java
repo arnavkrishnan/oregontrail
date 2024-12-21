@@ -867,7 +867,6 @@ public class Game {
         Terminal.println("3. Grueling - very fast, but risks exhaustion and health.");
         Terminal.print("What is your choice? ");
         this.pace = TextIO.getlnInt();
-        Terminal.println("New Pace Effect: " + paceEffectMap.get(this.pace)); // Show updated effect
     }
 
     private void changeFoodRations() {
@@ -961,13 +960,13 @@ public class Game {
     
         Random rand = new Random();
         switch (choice) {
-            case 1: // Ford the wagon
+            case 1:
                 fordWagon(river, rand);
                 break;
-            case 2: // Caulk the wagon
+            case 2: 
                 caulkWagon(river, rand);
                 break;
-            case 3: // Get a ferry
+            case 3:
                 getFerry(river);
                 break;
             default:
@@ -1011,7 +1010,6 @@ public class Game {
     }
     
     private void getFerry(River river) {
-        // Always successful, but costs money
         // Todo: maybe make different rivers cost more?
         int cost = 15; 
         if (player.getMoney() >= cost) {
@@ -1027,20 +1025,20 @@ public class Game {
     }
     
     private void handleRiverDamage() {
-        // randomly damage the player's supplies and oxen
+
         Random rand = new Random();
         int foodLoss = rand.nextInt(20) + 10;
         int clothingLoss = rand.nextInt(10) + 5;
         int sparePartsLoss = rand.nextInt(2) + 1;
     
-        // subtract items from the player's inventory
+
         player.subtractItem(new Item(ItemType.FOOD, foodLoss));
         player.subtractItem(new Item(ItemType.CLOTHES, clothingLoss));
         player.subtractItem(new Item(ItemType.WHEELS, sparePartsLoss));
         player.subtractItem(new Item(ItemType.AXELS, sparePartsLoss));
         player.subtractItem(new Item(ItemType.TONGUES, sparePartsLoss));
     
-        // randomly lose oxen and companions
+
         if (rand.nextInt(100) < 30) {
             loseOxen(rand);
         }

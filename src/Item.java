@@ -26,6 +26,7 @@ public class Item {
     }
 
     public boolean subtractQuantity(int quantityToSubtract) {
+        // bool to check if it went thru
         if (quantityToSubtract > 0 && this.quantity >= quantityToSubtract) {
             this.quantity -= quantityToSubtract;
             return true;

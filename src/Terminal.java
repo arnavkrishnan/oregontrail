@@ -22,6 +22,7 @@ public class Terminal {
 
     public static void clean() {
         System.out.print("\033[H\033[2J");
+        // from stack overflow
         System.out.flush();
     }
 

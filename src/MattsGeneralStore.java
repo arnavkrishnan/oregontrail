@@ -1,3 +1,4 @@
+// this took me a concerning amount of time. Go play the actual oregon trail. Notice anything? Yes - it's exactly the same.
 public class MattsGeneralStore {
     public static int buyOxen(Player player){
         int yoke = -1;
