@@ -305,6 +305,13 @@ public class Game {
     }
 
     private void calculateWeather() {
+
+        //  must be raining to snowing
+        // must be raining to thunder
+        // must be snowing to blizzard
+
+        // my code for this section isn't that good tbh. 
+        // i tried tho.. but it still rains in late july
         Random rand = new Random();
         int currentMonth = Integer.parseInt(Date.calculate(daysTraveled, month, "month"));    
         boolean isColdMonth = (currentMonth == 12 || currentMonth == 1 || currentMonth == 2);
